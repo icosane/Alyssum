@@ -1,0 +1,6 @@
+winrt-Windows.UI==3.0.0
+winrt-Windows.UI.ViewManagement==3.0.0
+PyQt-Fluent-Widgets[full]==1.8.1
+PyQt5==5.15.11
+argostranslate==1.9.6
+langdetect==1.0.9
