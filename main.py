@@ -3,7 +3,7 @@ from PyQt5.QtGui import QColor, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot
 sys.stdout = open(os.devnull, 'w')
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, SettingCard, MessageBox, FluentTranslator, IndeterminateProgressBar, HeaderCardWidget, BodyLabel, IconWidget, InfoBarIcon, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, Flyout, FlyoutAnimationType, TransparentPushButton, TextBrowser, TextEdit
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, SettingCard, MessageBox, FluentTranslator, IndeterminateProgressBar, HeaderCardWidget, BodyLabel, IconWidget, InfoBarIcon, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, Flyout, FlyoutAnimationType, TransparentPushButton, TextBrowser, TextEdit, SwitchSettingCard
 from winrt.windows.ui.viewmanagement import UISettings, UIColorType
 from AlyssumResources.config import cfg, TranslationPackage
 from AlyssumResources.argos_utils import update_package
@@ -75,7 +75,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setWindowTitle(QCoreApplication.translate("MainWindow", "Alyssum"))
-        #self.setWindowIcon(QIcon(os.path.join(res_dir, "resource", "assets", "icon.ico")))
+        self.setWindowIcon(QIcon(os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")))
         self.setGeometry(100,100,700,800)
         self.setMinimumSize(700,800)
         self.stacked_widget = QStackedWidget()
@@ -94,8 +94,6 @@ class MainWindow(QMainWindow):
         self.settings_layout()
         self.setup_theme()
         self.center()
-        self.model = None
-        self.last_directory = ""
 
         self.theme_changed.connect(self.update_theme)
         self.package_changed.connect(lambda: update_package(self))
@@ -151,6 +149,7 @@ class MainWindow(QMainWindow):
 
     def main_layout(self):
         main_layout = QVBoxLayout()
+        button_layout = QHBoxLayout()
 
         main_layout.addWidget(self.lang_widget_main)
         self.check_packages()
@@ -160,21 +159,22 @@ class MainWindow(QMainWindow):
         self.textinputw = PlainTextEdit()
         self.textinputw.setFont(font)
         main_layout.addWidget(self.textinputw)
+
         self.tl_button = PushButton(QCoreApplication.translate("MainWindow",'Translate'))
-        main_layout.addWidget(self.tl_button)
-        main_layout.setAlignment(self.tl_button, Qt.AlignCenter)
+        button_layout.addWidget(self.tl_button)
+        self.cl_button = PushButton(QCoreApplication.translate("MainWindow",'Clear'))
+        button_layout.addWidget(self.cl_button)
+        main_layout.addLayout(button_layout)
+        main_layout.setAlignment(button_layout, Qt.AlignCenter)
+
         self.textoutputw = TextBrowser()
         self.textoutputw.setFont(font)
         main_layout.addWidget(self.textoutputw)
 
         self.settings_button = TransparentToolButton(FluentIcon.SETTING)
 
-        self.back_button = TransparentToolButton(FluentIcon.LEFT_ARROW)
-        self.back_button.hide()
-
         settings_layout = QHBoxLayout()
         settings_layout.addWidget(self.settings_button)
-        settings_layout.addWidget(self.back_button)
         settings_layout.addStretch()
         settings_layout.setContentsMargins(5, 5, 5, 5)
 
@@ -183,6 +183,7 @@ class MainWindow(QMainWindow):
         #connect
         self.settings_button.clicked.connect(self.show_settings_page)
         self.tl_button.clicked.connect(self.start_translation_process)
+        self.cl_button.clicked.connect(self.clearinpoutw)
 
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
@@ -256,6 +257,14 @@ class MainWindow(QMainWindow):
         card_layout.addSpacing(20)
         card_layout.addWidget(self.miscellaneous_title, alignment=Qt.AlignmentFlag.AlignTop)
 
+        self.card_shortcuts = SwitchSettingCard(
+            icon=FluentIcon.TILES,
+            title=QCoreApplication.translate("MainWindow","Enable keyboard shortcuts"),
+            content=QCoreApplication.translate("MainWindow","Press F1 to translate, F2 to clear windows."),
+            configItem=cfg.shortcuts
+        )
+        card_layout.addWidget(self.card_shortcuts, alignment=Qt.AlignmentFlag.AlignTop)
+
         self.card_setlanguage = ComboBoxSettingCard(
             configItem=cfg.language,
             icon=FluentIcon.LANGUAGE,
@@ -325,6 +334,18 @@ class MainWindow(QMainWindow):
 
     def show_main_page(self):
         self.stacked_widget.setCurrentIndex(0)  # Switch back to the main page
+
+    def clearinpoutw(self):
+        self.textoutputw.clear()
+        self.textinputw.clear()
+
+    def keyPressEvent(self, event):
+        if (cfg.get(cfg.shortcuts) is True):
+            if event.key() == Qt.Key_F1:
+                self.tl_button.click()
+            elif event.key() == Qt.Key_F2:
+                self.cl_button.click()
+        super().keyPressEvent(event)
 
     def check_packages(self):
 
@@ -422,7 +443,7 @@ class MainWindow(QMainWindow):
             'uk_en': 'Ukrainian → English',
             'ur_en': 'Urdu → English'
         }
-        
+
         translation_mapping = {
             'en_ru': TranslationPackage.EN_TO_RU,
             'ru_en': TranslationPackage.RU_TO_EN,
@@ -520,7 +541,7 @@ class MainWindow(QMainWindow):
 
         def update_layout(layout):
             # Clear the layout
-            for i in reversed(range(layout.count())): 
+            for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
                 if widget and widget.parent() is not None:
                     widget.deleteLater()
@@ -546,13 +567,13 @@ class MainWindow(QMainWindow):
                         break
                 if found:
                     available_languages.append((language_pair, name))
-            
+
             # Create buttons for available languages
             for code, name in available_languages:
                 lang_button = TransparentPushButton(name)
                 lang_button.clicked.connect(lambda _, c=code: self.card_settlpackage.setValue(translation_mapping[c]))
                 layout.addWidget(lang_button, alignment=Qt.AlignmentFlag.AlignTop)
-            
+
             # Show/hide the widget based on available languages
             if layout == self.lang_layout_main:
                 self.lang_widget_main.setVisible(len(available_languages) > 0)
@@ -663,7 +684,7 @@ class MainWindow(QMainWindow):
         if success:
             self.textoutputw.setPlainText(result)
         else:  # Error message
-            self.textoutputw.setPlainText("Error translating")
+            self.textoutputw.setPlainText(f"Error translating:{result}")
 
         if hasattr(self.translator, 'translation_worker'):
             self.translator.translation_worker.abort()

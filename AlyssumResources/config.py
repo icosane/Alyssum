@@ -3,7 +3,7 @@ import os, sys
 from pathlib import Path
 from PyQt5.QtCore import QLocale
 from qfluentwidgets import (qconfig, QConfig, OptionsConfigItem, Theme,
-                            OptionsValidator, EnumSerializer, ConfigSerializer)
+                            OptionsValidator, EnumSerializer, ConfigSerializer, ConfigItem, BoolValidator)
 
 
 class ArgosPathManager:
@@ -96,6 +96,7 @@ class Config(QConfig):
         "Settings", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True)
     package = OptionsConfigItem(
         "Translation", "package", TranslationPackage.NONE, OptionsValidator(TranslationPackage), TranslationPackageSerializer(), restart=False)
+    shortcuts = ConfigItem("MainWindow", "shortcuts", False, BoolValidator())
 
 
 cfg = Config()
