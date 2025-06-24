@@ -2,16 +2,17 @@ import sys, os
 from PyQt5.QtGui import QColor, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot
-sys.stdout = open(os.devnull, 'w')
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, SettingCard, MessageBox, FluentTranslator, IndeterminateProgressBar, HeaderCardWidget, BodyLabel, IconWidget, InfoBarIcon, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, Flyout, FlyoutAnimationType, TransparentPushButton, TextBrowser, TextEdit, SwitchSettingCard
+#sys.stdout = open(os.devnull, 'w')
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, SettingCard, MessageBox, FluentTranslator, IndeterminateProgressBar, HeaderCardWidget, BodyLabel, IconWidget, InfoBarIcon, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, Flyout, FlyoutAnimationType, TransparentTogglePushButton, TextBrowser, TextEdit, SwitchSettingCard
 from winrt.windows.ui.viewmanagement import UISettings, UIColorType
 from AlyssumResources.config import cfg, TranslationPackage
-from AlyssumResources.argos_utils import update_package
+from AlyssumResources.argos_utils import update_package, update_device
 from AlyssumResources.translator import TextTranslator
 import shutil
 import traceback, gc
 import glob
 from pathlib import Path
+from ctranslate2 import get_cuda_device_count
 
 
 def get_lib_paths():
@@ -19,6 +20,18 @@ def get_lib_paths():
         base_dir = os.path.join(sys.prefix)
     else:  # Running inside a virtual environment
         base_dir = os.path.join(sys.prefix, "Lib", "site-packages")
+
+    nvidia_base_libs = os.path.join(base_dir, "nvidia")
+    cuda_libs = os.path.join(nvidia_base_libs, "cuda_runtime", "bin")
+    cublas_libs = os.path.join(nvidia_base_libs, "cublas", "bin")
+    cudnn_libs = os.path.join(nvidia_base_libs, "cudnn", "bin")
+
+    return [cuda_libs, cublas_libs, cudnn_libs]
+
+
+for dll_path in get_lib_paths():
+    if os.path.exists(dll_path):
+        os.environ["PATH"] = dll_path + os.pathsep + os.environ["PATH"]
 
 
 if getattr(sys, 'frozen', False):
@@ -71,15 +84,20 @@ class PlainTextEdit(TextEdit):
 class MainWindow(QMainWindow):
     theme_changed = pyqtSignal()
     package_changed = pyqtSignal()
+    device_changed = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setWindowTitle(QCoreApplication.translate("MainWindow", "Alyssum"))
         self.setWindowIcon(QIcon(os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")))
-        self.setGeometry(100,100,700,800)
-        self.setMinimumSize(700,800)
+        self.setGeometry(100,100,700,850)
+        self.setMinimumSize(700,850)
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
+        self.lang_buttons = {
+            'main': {},
+            'settings': {}
+        }
 
         self.lang_layout_main = QHBoxLayout()
         self.lang_widget_main = QWidget()
@@ -97,6 +115,7 @@ class MainWindow(QMainWindow):
 
         self.theme_changed.connect(self.update_theme)
         self.package_changed.connect(lambda: update_package(self))
+        self.device_changed.connect(lambda: update_device(self))
 
         self.translator = TextTranslator(self, cfg)
 
@@ -209,6 +228,24 @@ class MainWindow(QMainWindow):
 
         card_layout = QVBoxLayout()
 
+        self.card_setdevice = ComboBoxSettingCard(
+            configItem=cfg.device,
+            icon=FluentIcon.DEVELOPER_TOOLS,
+            title=QCoreApplication.translate("MainWindow","Device"),
+            content=QCoreApplication.translate("MainWindow", "Select a device to use. Cuda will utilize GPU."),
+            texts=['cpu', 'cuda']
+        )
+
+        card_layout.addWidget(self.card_setdevice, alignment=Qt.AlignmentFlag.AlignTop)
+
+        if get_cuda_device_count() == 0:
+            self.card_setdevice.hide()
+            self.devices_title.hide()
+            if cfg.get(cfg.device).value == 'cuda':
+                cfg.set(cfg.device, 'cpu')
+
+        cfg.device.valueChanged.connect(self.device_changed.emit)
+
         self.modelsins_title = StrongBodyLabel(QCoreApplication.translate("MainWindow", "Model management"))
         self.modelsins_title.setTextColor(QColor(0, 0, 0), QColor(255, 255, 255))
         card_layout.addSpacing(20)
@@ -260,7 +297,7 @@ class MainWindow(QMainWindow):
         self.card_shortcuts = SwitchSettingCard(
             icon=FluentIcon.TILES,
             title=QCoreApplication.translate("MainWindow","Enable keyboard shortcuts"),
-            content=QCoreApplication.translate("MainWindow","Press F1 to translate, F2 to clear windows."),
+            content=QCoreApplication.translate("MainWindow","Press F1 to translate, F2 to clear windows, F3 to copy translation to the clipboard."),
             configItem=cfg.shortcuts
         )
         card_layout.addWidget(self.card_shortcuts, alignment=Qt.AlignmentFlag.AlignTop)
@@ -339,12 +376,28 @@ class MainWindow(QMainWindow):
         self.textoutputw.clear()
         self.textinputw.clear()
 
+    def selectandcopy(self):
+        self.textoutputw.selectAll()
+        self.textoutputw.copy()
+
+        InfoBar.success(
+                title=QCoreApplication.translate("MainWindow", "Success"),
+                content=QCoreApplication.translate("MainWindow", "Successfully copied to the clipboard"),
+                orient=Qt.Orientation.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.BOTTOM,
+                duration=4000,
+                parent=self
+            )
+
     def keyPressEvent(self, event):
         if (cfg.get(cfg.shortcuts) is True):
             if event.key() == Qt.Key_F1:
                 self.tl_button.click()
             elif event.key() == Qt.Key_F2:
                 self.cl_button.click()
+            elif event.key() == Qt.Key_F3:
+                self.selectandcopy()
         super().keyPressEvent(event)
 
     def check_packages(self):
@@ -540,11 +593,15 @@ class MainWindow(QMainWindow):
         }
 
         def update_layout(layout):
+            layout_key = 'main' if layout == self.lang_layout_main else 'settings'
+            self.lang_buttons[layout_key].clear()
+
             # Clear the layout
             for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
                 if widget and widget.parent() is not None:
                     widget.deleteLater()
+
             # Find available languages
             available_languages = []
             for language_pair, name in languages.items():
@@ -569,9 +626,23 @@ class MainWindow(QMainWindow):
                     available_languages.append((language_pair, name))
 
             # Create buttons for available languages
+            current_package = cfg.get(cfg.package).value
             for code, name in available_languages:
-                lang_button = TransparentPushButton(name)
-                lang_button.clicked.connect(lambda _, c=code: self.card_settlpackage.setValue(translation_mapping[c]))
+                lang_button = TransparentTogglePushButton(name)
+                lang_button.setChecked(code == current_package)
+                self.lang_buttons[layout_key][code] = lang_button
+
+                def handler(checked=False, c=code):
+                    # Uncheck all others
+                    for btns in self.lang_buttons.values():
+                        for other_code, other_btn in btns.items():
+                            other_btn.setChecked(other_code == c)
+                            
+                    cfg.set(cfg.package, translation_mapping[c])
+                    self.card_settlpackage.setValue(translation_mapping[c])
+
+                #lang_button.clicked.connect(lambda _, c=code: self.card_settlpackage.setValue(translation_mapping[c]))
+                lang_button.clicked.connect(handler)
                 layout.addWidget(lang_button, alignment=Qt.AlignmentFlag.AlignTop)
 
             # Show/hide the widget based on available languages

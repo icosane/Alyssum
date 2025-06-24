@@ -2,6 +2,7 @@ from enum import Enum
 import os, sys
 from pathlib import Path
 from PyQt5.QtCore import QLocale
+from ctranslate2 import get_cuda_device_count
 from qfluentwidgets import (qconfig, QConfig, OptionsConfigItem, Theme,
                             OptionsValidator, EnumSerializer, ConfigSerializer, ConfigItem, BoolValidator)
 
@@ -28,7 +29,7 @@ class ArgosPathManager:
             "XDG_CACHE_HOME": str(Path(ARGOS_PACKAGES_DIR) / "cache"),
             "ARGOS_PACKAGES_DIR": str(Path(ARGOS_PACKAGES_DIR) / "data" / "argos-translate" / "packages"),
             "ARGOS_TRANSLATE_DATA_DIR": str(Path(ARGOS_PACKAGES_DIR) / "data"),
-            "ARGOS_DEVICE_TYPE": "cpu"
+            "ARGOS_DEVICE_TYPE": "cuda" if get_cuda_device_count() != 0 else "cpu"
         })
 
         # Create directories
@@ -70,6 +71,25 @@ TranslationPackage = Enum(
     }
 )
 
+class Device(Enum):
+    CPU = "cpu"
+    CUDA = "cuda"
+
+class DeviceSerializer(ConfigSerializer):
+    """ Device serializer """
+
+    def __init__(self):
+        self.device_map = {device.value: device for device in Device}
+
+    def serialize(self, device):
+        return device.value
+
+    def deserialize(self, value: str):
+        device = self.device_map.get(value)
+        if device is None:
+            raise ValueError(f"Invalid device: {value}")
+        return device
+
 class TranslationPackageSerializer(ConfigSerializer):
     """ Translation package serializer """
 
@@ -97,6 +117,8 @@ class Config(QConfig):
     package = OptionsConfigItem(
         "Translation", "package", TranslationPackage.NONE, OptionsValidator(TranslationPackage), TranslationPackageSerializer(), restart=False)
     shortcuts = ConfigItem("MainWindow", "shortcuts", False, BoolValidator())
+    device = OptionsConfigItem(
+        "Settings", "device", Device.CPU, OptionsValidator(Device), DeviceSerializer(), restart=False)
 
 
 cfg = Config()
