@@ -2,6 +2,7 @@ from PyQt5.QtCore import QThread, pyqtSignal, QCoreApplication
 from AlyssumResources.config import cfg
 import argostranslate.package
 import argostranslate.translate
+import os
 
 
 class PackageDownloaderThread(QThread):
@@ -75,7 +76,7 @@ def package_downloader(main_window, from_lang: str, to_lang: str):
 
 def update_package(main_window):
     language_pair = cfg.get(cfg.package).value
-    content=QCoreApplication.translate("MainWindow", "Delete currently selected Argos Translate package. Currently selected: <b>{}</b>").format(cfg.get(cfg.package).value)
+    content=QCoreApplication.translate("MainWindow", "Delete currently selected translation package. Will be removed: <b>{}</b>").format(cfg.get(cfg.package).value)
 
     if language_pair == 'None':
         main_window.update_argos_remove_button_state(False)

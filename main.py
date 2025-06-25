@@ -3,22 +3,17 @@ from PyQt5.QtGui import QColor, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot
 sys.stdout = open(os.devnull, 'w')
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, SettingCard, MessageBox, FluentTranslator, IndeterminateProgressBar, HeaderCardWidget, BodyLabel, IconWidget, InfoBarIcon, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, Flyout, FlyoutAnimationType, TransparentPushButton, TextBrowser, TextEdit, SwitchSettingCard
+import warnings
+warnings.filterwarnings("ignore")
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, SettingCard, MessageBox, FluentTranslator, IndeterminateProgressBar, HeaderCardWidget, BodyLabel, IconWidget, InfoBarIcon, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, Flyout, FlyoutAnimationType, TransparentTogglePushButton, TextBrowser, TextEdit, SwitchSettingCard
 from winrt.windows.ui.viewmanagement import UISettings, UIColorType
 from AlyssumResources.config import cfg, TranslationPackage
 from AlyssumResources.argos_utils import update_package
 from AlyssumResources.translator import TextTranslator
 import shutil
-import traceback, gc
+import traceback
 import glob
 from pathlib import Path
-
-
-def get_lib_paths():
-    if getattr(sys, 'frozen', False):  # Running inside PyInstaller
-        base_dir = os.path.join(sys.prefix)
-    else:  # Running inside a virtual environment
-        base_dir = os.path.join(sys.prefix, "Lib", "site-packages")
 
 
 if getattr(sys, 'frozen', False):
@@ -29,6 +24,41 @@ else:
     # Running as a script
     base_dir = os.path.dirname(os.path.abspath(__file__))
     res_dir = base_dir
+
+class ErrorHandler(object):
+    def __call__(self, exctype, value, tb):
+        # Extract the traceback details
+        tb_info = traceback.extract_tb(tb)
+        # Get the last entry in the traceback (the most recent call)
+        last_call = tb_info[-1] if tb_info else None
+
+        if last_call:
+            filename, line_number, function_name, text = last_call
+            error_message = (f"Type: {exctype.__name__}\n"
+                             f"Message: {value}\n"
+                             f"File: {filename}\n"
+                             f"Line: {line_number}\n"
+                             f"Code: {text}")
+        else:
+            error_message = (f"Type: {exctype.__name__}\n"
+                             f"Message: {value}")
+
+        error_box = MessageBox("Error", error_message, parent=window)
+        error_box.cancelButton.hide()
+        error_box.buttonLayout.insertStretch(1)
+        error_box.exec()
+
+    def write(self, message):
+        if message.startswith("Error:"):
+            error_box = MessageBox("Error", message, parent=window)
+            error_box.cancelButton.hide()
+            error_box.buttonLayout.insertStretch(1)
+            error_box.exec()
+        else:
+            pass
+
+    def flush(self):
+        pass
 
 
 class PlainTextEdit(TextEdit):
@@ -76,10 +106,14 @@ class MainWindow(QMainWindow):
         super().__init__(parent=parent)
         self.setWindowTitle(QCoreApplication.translate("MainWindow", "Alyssum"))
         self.setWindowIcon(QIcon(os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")))
-        self.setGeometry(100,100,700,800)
-        self.setMinimumSize(700,800)
+        self.setGeometry(100,100,700,850)
+        self.setMinimumSize(700,850)
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
+        self.lang_buttons = {
+            'main': {},
+            'settings': {}
+        }
 
         self.lang_layout_main = QHBoxLayout()
         self.lang_widget_main = QWidget()
@@ -260,7 +294,7 @@ class MainWindow(QMainWindow):
         self.card_shortcuts = SwitchSettingCard(
             icon=FluentIcon.TILES,
             title=QCoreApplication.translate("MainWindow","Enable keyboard shortcuts"),
-            content=QCoreApplication.translate("MainWindow","Press F1 to translate, F2 to clear windows."),
+            content=QCoreApplication.translate("MainWindow","Press F1 to translate, F2 to clear windows, F3 to copy translation to the clipboard."),
             configItem=cfg.shortcuts
         )
         card_layout.addWidget(self.card_shortcuts, alignment=Qt.AlignmentFlag.AlignTop)
@@ -339,12 +373,28 @@ class MainWindow(QMainWindow):
         self.textoutputw.clear()
         self.textinputw.clear()
 
+    def selectandcopy(self):
+        self.textoutputw.selectAll()
+        self.textoutputw.copy()
+
+        InfoBar.success(
+            title=QCoreApplication.translate("MainWindow", "Success"),
+            content=QCoreApplication.translate("MainWindow", "Successfully copied to the clipboard"),
+            orient=Qt.Orientation.Horizontal,
+            isClosable=False,
+            position=InfoBarPosition.BOTTOM,
+            duration=4000,
+            parent=self
+        )
+
     def keyPressEvent(self, event):
         if (cfg.get(cfg.shortcuts) is True):
             if event.key() == Qt.Key_F1:
                 self.tl_button.click()
             elif event.key() == Qt.Key_F2:
                 self.cl_button.click()
+            elif event.key() == Qt.Key_F3:
+                self.selectandcopy()
         super().keyPressEvent(event)
 
     def check_packages(self):
@@ -540,11 +590,15 @@ class MainWindow(QMainWindow):
         }
 
         def update_layout(layout):
+            layout_key = 'main' if layout == self.lang_layout_main else 'settings'
+            self.lang_buttons[layout_key].clear()
+
             # Clear the layout
             for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
                 if widget and widget.parent() is not None:
                     widget.deleteLater()
+
             # Find available languages
             available_languages = []
             for language_pair, name in languages.items():
@@ -569,9 +623,23 @@ class MainWindow(QMainWindow):
                     available_languages.append((language_pair, name))
 
             # Create buttons for available languages
+            current_package = cfg.get(cfg.package).value
             for code, name in available_languages:
-                lang_button = TransparentPushButton(name)
-                lang_button.clicked.connect(lambda _, c=code: self.card_settlpackage.setValue(translation_mapping[c]))
+                lang_button = TransparentTogglePushButton(name)
+                lang_button.setChecked(code == current_package)
+                self.lang_buttons[layout_key][code] = lang_button
+
+                def handler(checked=False, c=code):
+                    # Uncheck all others
+                    for btns in self.lang_buttons.values():
+                        for other_code, other_btn in btns.items():
+                            other_btn.setChecked(other_code == c)
+                            
+                    cfg.set(cfg.package, translation_mapping[c])
+                    self.card_settlpackage.setValue(translation_mapping[c])
+
+                #lang_button.clicked.connect(lambda _, c=code: self.card_settlpackage.setValue(translation_mapping[c]))
+                lang_button.clicked.connect(handler)
                 layout.addWidget(lang_button, alignment=Qt.AlignmentFlag.AlignTop)
 
             # Show/hide the widget based on available languages
@@ -751,6 +819,6 @@ if __name__ == "__main__":
 
     window = MainWindow()
     window.show()
-    #sys.excepthook = ErrorHandler()
-    #sys.stderr = ErrorHandler()
+    sys.excepthook = ErrorHandler()
+    sys.stderr = ErrorHandler()
     sys.exit(app.exec())
