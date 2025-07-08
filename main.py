@@ -1,19 +1,21 @@
 import sys, os
-from PyQt5.QtGui import QColor, QIcon, QFont
+from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget
-from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject
 sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, SettingCard, MessageBox, FluentTranslator, IndeterminateProgressBar, HeaderCardWidget, BodyLabel, IconWidget, InfoBarIcon, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, Flyout, FlyoutAnimationType, TransparentTogglePushButton, TextBrowser, TextEdit, SwitchSettingCard
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit,  SwitchSettingCard
 from winrt.windows.ui.viewmanagement import UISettings, UIColorType
 from AlyssumResources.config import cfg, TranslationPackage
 from AlyssumResources.argos_utils import update_package
 from AlyssumResources.translator import TextTranslator
+from AlyssumResources.tesseract import OCR
 import shutil
 import traceback
 import glob
 from pathlib import Path
+import pyautogui, re
 
 
 if getattr(sys, 'frozen', False):
@@ -59,6 +61,157 @@ class ErrorHandler(object):
 
     def flush(self):
         pass
+
+class ScreenshotOverlay(QWidget):
+    screenshot_taken = pyqtSignal(QPixmap)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowFlags(
+            Qt.WindowStaysOnTopHint |
+            Qt.FramelessWindowHint |
+            Qt.Tool
+        )
+        self.setAttribute(Qt.WA_TranslucentBackground)
+
+        screen = QApplication.primaryScreen()
+        screen_geometry = screen.geometry()
+
+        self.setGeometry(screen_geometry)
+
+        self.start_point = None
+        self.end_point = None
+        self.is_drawing = False
+        self.selection_rect = None
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+
+        # Semi-transparent dark overlay
+        if not self.selection_rect:
+            # Semi-transparent dark overlay
+            painter.fillRect(self.rect(), QColor(0, 0, 0, 100))
+
+        # If a selection is being made
+        if self.selection_rect:
+            # Set up a transparent brush and red pen
+            painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
+            painter.setBrush(Qt.NoBrush)  # Make the fill transparent
+
+            # Draw the selection rectangle
+            painter.drawRect(self.selection_rect)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.start_point = event.pos()
+            self.end_point = event.pos()
+            self.is_drawing = True
+            self.selection_rect = None
+            self.update()
+
+    def mouseMoveEvent(self, event):
+        if self.is_drawing:
+            self.end_point = event.pos()
+            self.selection_rect = QRect(
+                min(self.start_point.x(), self.end_point.x()),
+                min(self.start_point.y(), self.end_point.y()),
+                abs(self.end_point.x() - self.start_point.x()),
+                abs(self.end_point.y() - self.start_point.y())
+            )
+            self.update()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self.is_drawing:
+            self.end_point = event.pos()
+            self.is_drawing = False
+
+            #screen = QApplication.primaryScreen()
+            #screen_geometry = screen.geometry()
+
+            # Correctly calculate coordinates
+            x1 = min(self.start_point.x(), self.end_point.x())
+            y1 = min(self.start_point.y(), self.end_point.y())
+            x2 = max(self.start_point.x(), self.end_point.x())
+            y2 = max(self.start_point.y(), self.end_point.y())
+
+            width = x2 - x1
+            height = y2 - y1
+
+            # **DEBUG** Print coordinates
+            '''print("Capture Region:")
+            print(f"x1: {x1}, y1: {y1}")
+            print(f"x2: {x2}, y2: {y2}")
+            print(f"Width: {width}, Height: {height}")'''
+
+            # Only capture if selection is larger than a few pixels
+            if width > 5 and height > 5:
+                # Capture the actual screen region
+                screenshot = pyautogui.screenshot(region=(x1, y1, width, height))
+
+                # **ADJUSTED CONVERSION**
+                screenshot = screenshot.convert('RGB')  # Ensure RGB mode
+                qimage = QImage(
+                    screenshot.tobytes('raw', 'RGB'),
+                    screenshot.width,
+                    screenshot.height,
+                    screenshot.width * 3,  # Explicit stride assumption
+                    QImage.Format_RGB888
+                )
+                pixmap = QPixmap.fromImage(qimage)
+
+                # Close overlay before emitting screenshot
+                self.close()
+
+                # Slight delay to ensure overlay is closed
+                QTimer.singleShot(100, lambda: self.screenshot_taken.emit(pixmap))
+            else:
+                # If selection is too small, just close the overlay
+                self.close()
+
+
+
+    def keyPressEvent(self, event):
+        # Allow closing the overlay with Escape key
+        if event.key() == Qt.Key_Escape:
+            self.close()
+
+class ScreenshotTool(QObject):
+    screenshot_taken = pyqtSignal(QPixmap)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.overlay = None
+
+    def capture_screenshot(self):
+        # Slight delay to allow releasing of keys
+        QApplication.processEvents()
+        QTimer.singleShot(200, self._show_overlay)
+
+    def _show_overlay(self):
+        self.overlay = ScreenshotOverlay()
+        self.overlay.screenshot_taken.connect(self.handle_screenshot)
+        self.overlay.show()
+
+    def handle_screenshot(self, pixmap):
+        # 1. Save to file
+        '''file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self.parent,
+            "Save Screenshot",
+            "",
+            "Image Files (*.png *.jpg *.bmp)"
+        )
+        if file_path:
+            pixmap.save(file_path)'''
+
+        # 2. Copy to clipboard
+        clipboard = QApplication.clipboard()
+        clipboard.setPixmap(pixmap)
+
+        # 3. Emit to other window
+        self.screenshot_taken.emit(pixmap)
+
+        # Optional: You can add more actions here
+        # For example, send to another method in your main application
 
 
 class PlainTextEdit(TextEdit):
@@ -108,6 +261,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")))
         self.setGeometry(100,100,700,850)
         self.setMinimumSize(700,850)
+        self.last_directory = ""
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
         self.lang_buttons = {
@@ -133,6 +287,9 @@ class MainWindow(QMainWindow):
         self.package_changed.connect(lambda: update_package(self))
 
         self.translator = TextTranslator(self, cfg)
+        self.screenshot_tool = ScreenshotTool(parent=self)
+        self.screenshot_tool.screenshot_taken.connect(self.on_screenshot_taken)
+        self.ocr = OCR(self, cfg)
 
     def setup_theme(self):
         main_color_hex = self.get_main_color_hex()
@@ -181,6 +338,36 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'card_deleteargosmodel'):
             self.card_deleteargosmodel.button.setEnabled(enabled)
 
+    def screenshot_start(self):
+        window.showMinimized()
+        self.screenshot_tool.capture_screenshot()
+
+    def on_screenshot_taken(self, pixmap: QPixmap):
+        if pixmap:
+            self.start_ocr_process(pixmap)
+        else:
+            # Handle the case where pixmap is empty (if ever occurs)
+            InfoBar.warning(
+                title="Warning",
+                content="No valid screenshot captured.",
+                duration=2000,
+                parent=self
+            )
+
+    def clean_text(self, text):
+        paragraphs = text.split('\n\n')
+
+        cleaned_paragraphs = []
+        for paragraph in paragraphs:
+            cleaned_paragraph = paragraph.replace('\n', ' ')
+
+            cleaned_paragraph = re.sub(r'\s+', ' ', cleaned_paragraph).strip()
+
+            cleaned_paragraphs.append(cleaned_paragraph)
+
+        text = '\n\n'.join(cleaned_paragraphs)
+        return text
+
     def main_layout(self):
         main_layout = QVBoxLayout()
         button_layout = QHBoxLayout()
@@ -206,9 +393,13 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.textoutputw)
 
         self.settings_button = TransparentToolButton(FluentIcon.SETTING)
+        self.copy_button = TransparentToolButton(FluentIcon.COPY)
+        self.ocr_button = TransparentToolButton(FluentIcon.CAMERA)
 
         settings_layout = QHBoxLayout()
         settings_layout.addWidget(self.settings_button)
+        settings_layout.addWidget(self.copy_button)
+        settings_layout.addWidget(self.ocr_button)
         settings_layout.addStretch()
         settings_layout.setContentsMargins(5, 5, 5, 5)
 
@@ -216,6 +407,8 @@ class MainWindow(QMainWindow):
 
         #connect
         self.settings_button.clicked.connect(self.show_settings_page)
+        self.copy_button.clicked.connect(self.selectandcopy)
+        self.ocr_button.clicked.connect(self.screenshot_start)
         self.tl_button.clicked.connect(self.start_translation_process)
         self.cl_button.clicked.connect(self.clearinpoutw)
 
@@ -258,14 +451,16 @@ class MainWindow(QMainWindow):
                 "cs_en", "da_en", "nl_en", "en_sq", "en_ar", "en_az", "en_eu", "en_bn", "en_bg",
                 "en_ca", "en_zh", "en_zh_tw", "en_cs", "en_da", "en_nl", "en_eo", "en_et", "en_fi",
                 "en_fr", "en_gl", "en_de", "en_el", "en_he", "en_hi", "en_hu", "en_id", "en_ga",
-                "en_it", "en_ja", "en_ko", "en_lv", "en_lt", "en_ms", "en_no", "en_fa", "en_pl",
+                "en_it", "en_ja", "en_ko", "en_ky", "en_lv", "en_lt", "en_ms", "en_no", "en_fa", "en_pl",
                 "en_pt", "en_pt_br", "en_ro", "en_ru", "en_sk", "en_sl", "en_es", "en_sv", "en_tl",
                 "en_th", "en_tr", "en_uk", "en_ur", "eo_en", "et_en", "fi_en", "fr_en", "gl_en",
                 "de_en", "el_en", "he_en", "hi_en", "hu_en", "id_en", "ga_en", "it_en", "ja_en",
-                "ko_en", "lv_en", "lt_en", "ms_en", "no_en", "fa_en", "pl_en", "pt_br_en", "pt_en",
+                "ko_en", "ky_en", "lv_en", "lt_en", "ms_en", "no_en", "fa_en", "pl_en", "pt_br_en", "pt_en",
                 "pt_es", "ro_en", "ru_en", "sk_en", "sl_en", "es_en", "es_pt", "sv_en", "tl_en",
                 "th_en", "tr_en", "uk_en", "ur_en"
             ]
+
+
         )
 
         card_layout.addWidget(self.card_settlpackage, alignment=Qt.AlignmentFlag.AlignTop)
@@ -413,7 +608,7 @@ class MainWindow(QMainWindow):
             'bn_en': 'Bengali → English',
             'bg_en': 'Bulgarian → English',
             'ca_en': 'Catalan → English',
-            'zt_en': 'Chinese (Mandarin) → English',
+            'zt_en': 'Chinese (traditional) → English',
             'zh_en': 'Chinese → English',
             'cs_en': 'Czech → English',
             'da_en': 'Danish → English',
@@ -426,7 +621,7 @@ class MainWindow(QMainWindow):
             'en_bg': 'English → Bulgarian',
             'en_ca': 'English → Catalan',
             'en_zh': 'English → Chinese',
-            'en_zt': 'English → Chinese (Mandarin)',
+            'en_zt': 'English → Chinese (traditional)',
             'en_cs': 'English → Czech',
             'en_da': 'English → Danish',
             'en_nl': 'English → Dutch',
@@ -445,6 +640,7 @@ class MainWindow(QMainWindow):
             'en_it': 'English → Italian',
             'en_ja': 'English → Japanese',
             'en_ko': 'English → Korean',
+            'en_ky': 'English → Kyrgyz',
             'en_lv': 'English → Latvian',
             'en_lt': 'English → Lithuanian',
             'en_ms': 'English → Malay',
@@ -473,6 +669,7 @@ class MainWindow(QMainWindow):
             'hu_en': 'Hungarian → English',
             'id_en': 'Indonesian → English',
             'ga_en': 'Irish → English',
+            'ky_en': 'Kyrgyz → English',
             'lv_en': 'Latvian → English',
             'lt_en': 'Lithuanian → English',
             'ms_en': 'Malay → English',
@@ -491,7 +688,7 @@ class MainWindow(QMainWindow):
             'th_en': 'Thai → English',
             'tr_en': 'Turkish → English',
             'uk_en': 'Ukrainian → English',
-            'ur_en': 'Urdu → English'
+            'ur_en': 'Urdu → English',
         }
 
         translation_mapping = {
@@ -634,7 +831,7 @@ class MainWindow(QMainWindow):
                     for btns in self.lang_buttons.values():
                         for other_code, other_btn in btns.items():
                             other_btn.setChecked(other_code == c)
-                            
+
                     cfg.set(cfg.package, translation_mapping[c])
                     self.card_settlpackage.setValue(translation_mapping[c])
 
@@ -748,6 +945,10 @@ class MainWindow(QMainWindow):
     def start_translation_process(self):
         self.translator.start_translation(self.textinputw.toPlainText())
 
+    @pyqtSlot()
+    def start_ocr_process(self, pixmap):
+        self.ocr.start_ocr_process(pixmap)
+
     def on_translation_done(self, result, success):
         if success:
             self.textoutputw.setPlainText(result)
@@ -756,6 +957,19 @@ class MainWindow(QMainWindow):
 
         if hasattr(self.translator, 'translation_worker'):
             self.translator.translation_worker.abort()
+
+    def on_ocr_done(self, extracted_text, success):
+        if success:
+            ct = self.clean_text(extracted_text)
+            self.textinputw.setPlainText(ct)
+            window.showNormal()
+        else:
+            InfoBar.error(
+                title="Error",
+                content=extracted_text,
+                duration=200000,
+                parent=self
+            )
 
     def on_package_download_finished(self, status):
         if status == "start":

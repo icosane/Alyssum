@@ -66,6 +66,7 @@ class TextTranslator:
             InfoBar.warning(
                 title="Warning",
                 content="No translation package selected. Please select one in Settings.",
+                duration=2000,
                 parent=self.parent
             )
             return

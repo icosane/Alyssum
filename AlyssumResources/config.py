@@ -1,6 +1,7 @@
 from enum import Enum
 import os, sys
 from pathlib import Path
+import pytesseract
 from PyQt5.QtCore import QLocale
 from qfluentwidgets import (qconfig, QConfig, OptionsConfigItem, Theme,
                             OptionsValidator, EnumSerializer, ConfigSerializer, ConfigItem, BoolValidator)
@@ -36,11 +37,33 @@ class ArgosPathManager:
 
         return ARGOS_PACKAGES_DIR
 
+class TesseractManager:
+    @staticmethod
+    def initialize():
+        """Set up custom directories for Tesseract"""
+        # Set base directory
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)  # PyInstaller bundle
+        else:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+        TESSDATA_PREFIX = os.path.join(base_dir, "AlyssumResources", "tesseract", "share", "tessdata")
+        pytesseract.pytesseract.tesseract_cmd = os.path.join(base_dir, "AlyssumResources", "tesseract", "bin", "tesseract.exe")
+
+        # Set environment variables
+        os.environ.update({
+            "TESSDATA_PREFIX": str(Path(TESSDATA_PREFIX)),
+        })
+
+        return TESSDATA_PREFIX
+
 
 # Initialize Argos paths BEFORE any Argos Translate imports
 ArgosPathManager.initialize()
 
 from argostranslate import argospm
+
+TesseractManager.initialize()
 
 class Language(Enum):
     """ Language enumeration """
