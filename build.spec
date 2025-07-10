@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 a = Analysis(
-    ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py'],
+    ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py', './AlyssumResources/tesseract.py'],
     pathex=[],
     datas=[('AlyssumResources','AlyssumResources')],
     hiddenimports=['PyQt5', 'winrt.windows.ui.viewmanagement', 'qfluentwidgets'],
@@ -27,7 +27,7 @@ exe = EXE(
     console=False,
     manifest=None,
     icon='./AlyssumResources/assets/icon.ico',
-    disable_windowed_traceback=True,
+    disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,

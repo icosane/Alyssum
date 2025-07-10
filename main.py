@@ -204,8 +204,8 @@ class ScreenshotTool(QObject):
             pixmap.save(file_path)'''
 
         # 2. Copy to clipboard
-        clipboard = QApplication.clipboard()
-        clipboard.setPixmap(pixmap)
+        #clipboard = QApplication.clipboard()
+        #clipboard.setPixmap(pixmap)
 
         # 3. Emit to other window
         self.screenshot_taken.emit(pixmap)
@@ -254,6 +254,7 @@ class PlainTextEdit(TextEdit):
 class MainWindow(QMainWindow):
     theme_changed = pyqtSignal()
     package_changed = pyqtSignal()
+    lang_changed = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -290,6 +291,7 @@ class MainWindow(QMainWindow):
         self.screenshot_tool = ScreenshotTool(parent=self)
         self.screenshot_tool.screenshot_taken.connect(self.on_screenshot_taken)
         self.ocr = OCR(self, cfg)
+        self.lang_changed.connect(self.on_lang_change)
 
     def setup_theme(self):
         main_color_hex = self.get_main_color_hex()
@@ -353,6 +355,9 @@ class MainWindow(QMainWindow):
                 duration=2000,
                 parent=self
             )
+
+    def on_lang_change(self):
+        self.ocr.set_package(cfg.package)
 
     def clean_text(self, text):
         paragraphs = text.split('\n\n')
@@ -465,6 +470,7 @@ class MainWindow(QMainWindow):
 
         card_layout.addWidget(self.card_settlpackage, alignment=Qt.AlignmentFlag.AlignTop)
         cfg.package.valueChanged.connect(self.package_changed.emit)
+        cfg.package.valueChanged.connect(self.lang_changed.emit)
 
         card_layout.addWidget(self.lang_widget_settings)
         self.check_packages()
