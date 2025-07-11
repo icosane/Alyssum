@@ -83,6 +83,7 @@ class ScreenshotOverlay(QWidget):
         self.end_point = None
         self.is_drawing = False
         self.selection_rect = None
+        self.setCursor(Qt.CrossCursor)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -124,6 +125,7 @@ class ScreenshotOverlay(QWidget):
         if event.button() == Qt.LeftButton and self.is_drawing:
             self.end_point = event.pos()
             self.is_drawing = False
+            self.setCursor(Qt.ArrowCursor)
 
             #screen = QApplication.primaryScreen()
             #screen_geometry = screen.geometry()
@@ -495,7 +497,7 @@ class MainWindow(QMainWindow):
         self.card_shortcuts = SwitchSettingCard(
             icon=FluentIcon.TILES,
             title=QCoreApplication.translate("MainWindow","Enable keyboard shortcuts"),
-            content=QCoreApplication.translate("MainWindow","Press F1 to translate, F2 to clear windows, F3 to copy translation to the clipboard."),
+            content=QCoreApplication.translate("MainWindow","Press F1 to translate, F2 to clear windows, F3 to copy translation to the clipboard,\nF5 to launch OCR."),
             configItem=cfg.shortcuts
         )
         card_layout.addWidget(self.card_shortcuts, alignment=Qt.AlignmentFlag.AlignTop)
@@ -596,6 +598,8 @@ class MainWindow(QMainWindow):
                 self.cl_button.click()
             elif event.key() == Qt.Key_F3:
                 self.selectandcopy()
+            elif event.key() == Qt.Key_F5:
+                self.screenshot_start()
         super().keyPressEvent(event)
 
     def check_packages(self):
@@ -1019,7 +1023,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     if cfg.get(cfg.dpiScale) != "Auto":
-        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
         os.environ["QT_SCALE_FACTOR"] = str(cfg.get(cfg.dpiScale))
 
     if os.name == 'nt':

@@ -2,7 +2,6 @@ from PyQt5.QtCore import QThread, pyqtSignal, QCoreApplication
 from AlyssumResources.config import cfg
 import argostranslate.package
 import argostranslate.translate
-import os
 
 
 class PackageDownloaderThread(QThread):
