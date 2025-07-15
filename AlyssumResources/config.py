@@ -124,7 +124,7 @@ class KeyCombinationSerializer(ConfigSerializer):
             return QKeySequence()
 
 
- 
+
 class KeyCombinationConfigItem(ConfigItem):
     def __init__(self, group: str, key: str, default: str):
         super().__init__(group, key, QKeySequence(default), serializer=KeyCombinationSerializer())

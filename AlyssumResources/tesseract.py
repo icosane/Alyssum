@@ -82,7 +82,7 @@ class OCR:
             "bg": "bul",  # Bulgarian
             "ca": "cat",  # Catalan
             "zh": "chi_sim",  # Chinese
-            "zh_tw": "chi_tra",  # Chinese
+            "zt": "chi_tra",  # Chinese
             "cs": "ces",  # Czech
             "da": "dan",  # Danish
             "de": "deu",  # German

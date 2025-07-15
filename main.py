@@ -1,11 +1,11 @@
 import sys, os
-from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence, QKeyEvent
+from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent
 sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit,  SwitchSettingCard, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton
 from qframelesswindow.utils import getSystemAccentColor
 from AlyssumResources.config import cfg, TranslationPackage
 from AlyssumResources.argos_utils import update_package
@@ -133,22 +133,22 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
         shortcut_str = self._modifiers_to_string(key, modifiers)
         shortcut = QKeySequence(shortcut_str)
         cfg.set(cfg.ocrcut, shortcut)
- 
+
     def updateTranslationShortcut(self, key, modifiers):
         shortcut_str = self._modifiers_to_string(key, modifiers)
         shortcut = QKeySequence(shortcut_str)
         cfg.set(cfg.tlcut, shortcut)
- 
+
     def updateClearShortcut(self, key, modifiers):
         shortcut_str = self._modifiers_to_string(key, modifiers)
         shortcut = QKeySequence(shortcut_str)
         cfg.set(cfg.clcut, shortcut)
- 
+
     def updateCopyShortcut(self, key, modifiers):
         shortcut_str = self._modifiers_to_string(key, modifiers)
         shortcut = QKeySequence(shortcut_str)
         cfg.set(cfg.copycut, shortcut)
- 
+
     def _modifiers_to_string(self, key, modifiers):
         names = []
 
@@ -169,13 +169,13 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
 
     def set_ocr_shortcut(self, shortcut):
         self.modeButton0.setText(shortcut.toString())
- 
+
     def set_translation_shortcut(self, shortcut):
         self.modeButton1.setText(shortcut.toString())
- 
+
     def set_clear_shortcut(self, shortcut):
         self.modeButton2.setText(shortcut.toString())
- 
+
     def set_copy_shortcut(self, shortcut):
         self.modeButton3.setText(shortcut.toString())
 
@@ -621,7 +621,7 @@ class MainWindow(QMainWindow):
             title=QCoreApplication.translate("MainWindow","Argos Translate package"),
             content=QCoreApplication.translate("MainWindow", "Change translation package"),
             texts=[
-                "None", "sq_en", "ar_en", "az_en", "eu_en", "bn_en", "bg_en", "ca_en", "zh_tw_en", "zh_en",
+                "None", "sq_en", "ar_en", "az_en", "eu_en", "bn_en", "bg_en", "ca_en", "zt_en", "zh_en",
                 "cs_en", "da_en", "nl_en", "en_sq", "en_ar", "en_az", "en_eu", "en_bn", "en_bg",
                 "en_ca", "en_zh", "en_zh_tw", "en_cs", "en_da", "en_nl", "en_eo", "en_et", "en_fi",
                 "en_fr", "en_gl", "en_de", "en_el", "en_he", "en_hi", "en_hu", "en_id", "en_ga",
@@ -660,13 +660,6 @@ class MainWindow(QMainWindow):
         self.miscellaneous_title.setTextColor(QColor(0, 0, 0), QColor(255, 255, 255))
         card_layout.addSpacing(20)
         card_layout.addWidget(self.miscellaneous_title, alignment=Qt.AlignmentFlag.AlignTop)
-
-        '''self.card_shortcuts = SwitchSettingCard(
-            icon=FluentIcon.TILES,
-            title=QCoreApplication.translate("MainWindow","Enable keyboard shortcuts"),
-            configItem=cfg.shortcuts
-        )
-        card_layout.addWidget(self.card_shortcuts, alignment=Qt.AlignmentFlag.AlignTop)'''
 
         self.card_editshortcuts = ShortcutsCard()
         card_layout.addWidget(self.card_editshortcuts, alignment=Qt.AlignmentFlag.AlignTop)
@@ -1140,13 +1133,13 @@ class MainWindow(QMainWindow):
 
     def update_ocr_shortcut(self, shortcut):
         self.card_editshortcuts.set_ocr_shortcut(shortcut)
- 
+
     def update_translation_shortcut(self, shortcut):
         self.card_editshortcuts.set_translation_shortcut(shortcut)
- 
+
     def update_clear_shortcut(self, shortcut):
         self.card_editshortcuts.set_clear_shortcut(shortcut)
- 
+
     def update_copy_shortcut(self, shortcut):
         self.card_editshortcuts.set_copy_shortcut(shortcut)
 
