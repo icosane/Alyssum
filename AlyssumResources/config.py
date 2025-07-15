@@ -3,6 +3,7 @@ import os, sys
 from pathlib import Path
 import pytesseract
 from PyQt5.QtCore import QLocale
+from PyQt5.QtGui import QKeySequence
 from qfluentwidgets import (qconfig, QConfig, OptionsConfigItem, Theme,
                             OptionsValidator, EnumSerializer, ConfigSerializer, ConfigItem, BoolValidator)
 
@@ -110,6 +111,24 @@ class TranslationPackageSerializer(ConfigSerializer):
             raise ValueError(f"Invalid translation package: {value}")
         return package
 
+class KeyCombinationSerializer(ConfigSerializer):
+    def serialize(self, value: QKeySequence) -> object:
+        return value[0] if not value.isEmpty() else 0
+
+    def deserialize(self, value: object) -> QKeySequence:
+        if isinstance(value, int):
+            return QKeySequence(value)
+        elif isinstance(value, str):
+            return QKeySequence(value)
+        else:
+            return QKeySequence()
+
+
+ 
+class KeyCombinationConfigItem(ConfigItem):
+    def __init__(self, group: str, key: str, default: str):
+        super().__init__(group, key, QKeySequence(default), serializer=KeyCombinationSerializer())
+
 class Config(QConfig):
     language = OptionsConfigItem(
         "Settings", "language", QLocale.Language.English, OptionsValidator(Language), LanguageSerializer(), restart=True)
@@ -119,7 +138,11 @@ class Config(QConfig):
         "Settings", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True)
     package = OptionsConfigItem(
         "Translation", "package", TranslationPackage.NONE, OptionsValidator(TranslationPackage), TranslationPackageSerializer(), restart=False)
-    shortcuts = ConfigItem("MainWindow", "shortcuts", False, BoolValidator())
+    shortcuts = ConfigItem("Shortcuts", "shortcuts", False, BoolValidator())
+    ocrcut = KeyCombinationConfigItem("Shortcuts", "OCR", "F1")
+    tlcut = KeyCombinationConfigItem("Shortcuts", "Translation", "F2")
+    clcut = KeyCombinationConfigItem("Shortcuts", "Clear windows", "F3")
+    copycut = KeyCombinationConfigItem("Shortcuts", "SelectAndCopy", "F5")
 
 
 cfg = Config()

@@ -4,7 +4,7 @@ A simple GUI for Argos Translate.
 
 - **Languages**: Support for most Argos Translate packages (new ones need manual adding to the list)
 - **OCR support**: Integrated Google Tesseract engine
-- **Shortcuts**: F1 to translate, F2 to clear windows, F3 to copy translation to the clipboard, F5 to launch OCR. (disabled by default, enable in settings)
+- **Configurable shortcuts**: By default you can use F1 to launch OCR, F2 to translate, F3 to clear windows, F5 to copy translation to the clipboard. All of them are remappable in settings. (Shortcuts are disabled by default, enable in settings)
 
 ## Getting Started
 
@@ -67,6 +67,7 @@ You can also open the extracted folder in [Visual Studio Code](https://code.visu
 - [PyInstaller](https://pyinstaller.org/)
 - [Tesseract portable](https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/826079-portable-tesseract)
 - [Letter t icons](https://www.flaticon.com/free-icons/letter-t) - Letter t icons created by Luch Phou - Flaticon
+- [Sl-Alex for ShortcutEdit](https://sl-alex.net/gui/2022/08/21/shortcutedit_capturing_shortcuts_in_pyqt/)
 
 ## Screenshots
 <div style="display: flex; flex-direction: column;">

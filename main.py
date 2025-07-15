@@ -1,12 +1,12 @@
 import sys, os
-from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage
+from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence, QKeyEvent
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget
-from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject
+from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent
 sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit,  SwitchSettingCard
-from winrt.windows.ui.viewmanagement import UISettings, UIColorType
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit,  SwitchSettingCard, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton
+from qframelesswindow.utils import getSystemAccentColor
 from AlyssumResources.config import cfg, TranslationPackage
 from AlyssumResources.argos_utils import update_package
 from AlyssumResources.translator import TextTranslator
@@ -61,6 +61,167 @@ class ErrorHandler(object):
 
     def flush(self):
         pass
+
+class ShortcutsCard(SimpleExpandGroupSettingCard):
+    def __init__(self, parent=None):
+        super().__init__(FluentIcon.TILES, QCoreApplication.translate("MainWindow", "Keyboard shortcuts"), QCoreApplication.translate("MainWindow", "Edit keyboard shortcuts"), parent)
+        self.switchb = SwitchButton()
+        self.addWidget(self.switchb)
+        self.switchb.setChecked(cfg.get(cfg.shortcuts))
+        self.switchb.checkedChanged.connect(self.shortcut_state)
+
+        # First group
+        self.modeButton0 = ShortcutEdit()
+        self.modeLabel0 = BodyLabel(QCoreApplication.translate("MainWindow", "Configure OCR shortcut"))
+        self.modeButton0.setFixedWidth(155)
+        self.modeButton0.shortcutChanged.connect(self.updateOcrShortcut)
+        ocr_shortcut = cfg.get(cfg.ocrcut).toString()
+        self.modeButton0.setText(ocr_shortcut)
+
+        # Second group
+        self.modeButton1 = ShortcutEdit()
+        self.modeLabel1 = BodyLabel(QCoreApplication.translate("MainWindow", "Configure translation shortcut"))
+        self.modeButton1.setFixedWidth(155)
+        self.modeButton1.shortcutChanged.connect(self.updateTranslationShortcut)
+        tl_shortcut = cfg.get(cfg.tlcut).toString()
+        self.modeButton1.setText(tl_shortcut)
+
+        # Third group
+        self.modeButton2 = ShortcutEdit()
+        self.modeLabel2 = BodyLabel(QCoreApplication.translate("MainWindow", "Configure clear shortcut"))
+        self.modeButton2.setFixedWidth(155)
+        self.modeButton2.shortcutChanged.connect(self.updateClearShortcut)
+        cl_shortcut = cfg.get(cfg.clcut).toString()
+        self.modeButton2.setText(cl_shortcut)
+
+        # Forth group
+        self.modeButton3 = ShortcutEdit()
+        self.modeLabel3 = BodyLabel(QCoreApplication.translate("MainWindow", "Configure copy shortcut"))
+        self.modeButton3.setFixedWidth(155)
+        self.modeButton3.shortcutChanged.connect(self.updateCopyShortcut)
+        select_and_copy_shortcut = cfg.get(cfg.copycut).toString()
+        self.modeButton3.setText(select_and_copy_shortcut)
+
+        # Adjust the internal layout
+        self.viewLayout.setContentsMargins(0, 0, 0, 0)
+        self.viewLayout.setSpacing(0)
+
+        # Add each group to the setting card
+        self.add(self.modeLabel0, self.modeButton0)
+        self.add(self.modeLabel1, self.modeButton1)
+        self.add(self.modeLabel2, self.modeButton2)
+        self.add(self.modeLabel3, self.modeButton3)
+
+    def add(self, label, widget):
+        w = QWidget()
+        w.setFixedHeight(60)
+
+        layout = QHBoxLayout(w)
+        layout.setContentsMargins(48, 12, 48, 12)
+
+        layout.addWidget(label)
+        layout.addStretch(1)
+        layout.addWidget(widget)
+
+        # Add the widget group to the setting card
+        self.addGroupWidget(w)
+
+    def shortcut_state(self):
+        cfg.set(cfg.shortcuts, self.switchb.isChecked())
+
+    def updateOcrShortcut(self, key, modifiers):
+        shortcut_str = self._modifiers_to_string(key, modifiers)
+        shortcut = QKeySequence(shortcut_str)
+        cfg.set(cfg.ocrcut, shortcut)
+ 
+    def updateTranslationShortcut(self, key, modifiers):
+        shortcut_str = self._modifiers_to_string(key, modifiers)
+        shortcut = QKeySequence(shortcut_str)
+        cfg.set(cfg.tlcut, shortcut)
+ 
+    def updateClearShortcut(self, key, modifiers):
+        shortcut_str = self._modifiers_to_string(key, modifiers)
+        shortcut = QKeySequence(shortcut_str)
+        cfg.set(cfg.clcut, shortcut)
+ 
+    def updateCopyShortcut(self, key, modifiers):
+        shortcut_str = self._modifiers_to_string(key, modifiers)
+        shortcut = QKeySequence(shortcut_str)
+        cfg.set(cfg.copycut, shortcut)
+ 
+    def _modifiers_to_string(self, key, modifiers):
+        names = []
+
+        if Qt.ControlModifier in modifiers:
+            names.append("Ctrl")
+        if Qt.ShiftModifier in modifiers:
+            names.append("Shift")
+        if Qt.AltModifier in modifiers:
+            names.append("Alt")
+        if Qt.MetaModifier in modifiers:
+            names.append("Meta")
+
+        if key != 0:
+            names.append(QKeySequence(key).toString())
+
+        return "+".join(names)
+
+
+    def set_ocr_shortcut(self, shortcut):
+        self.modeButton0.setText(shortcut.toString())
+ 
+    def set_translation_shortcut(self, shortcut):
+        self.modeButton1.setText(shortcut.toString())
+ 
+    def set_clear_shortcut(self, shortcut):
+        self.modeButton2.setText(shortcut.toString())
+ 
+    def set_copy_shortcut(self, shortcut):
+        self.modeButton3.setText(shortcut.toString())
+
+class ShortcutEdit(LineEdit):
+    shortcutChanged = pyqtSignal(int, list)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setReadOnly(True)
+        self.current_key = 0
+        self.current_modifiers = []
+
+    def event(self, event):
+        if event.type() == QEvent.KeyPress:
+            # Reset current state
+            self.current_key = 0
+            self.current_modifiers = []
+
+            key = event.key()
+            mods = event.modifiers()
+
+            # Ignore pure modifier key presses
+            if key in (Qt.Key_Control, Qt.Key_Shift, Qt.Key_Alt, Qt.Key_Meta):
+                self.current_key = 0
+            else:
+                self.current_key = key
+
+            if mods & Qt.ControlModifier:
+                self.current_modifiers.append(Qt.ControlModifier)
+            if mods & Qt.ShiftModifier:
+                self.current_modifiers.append(Qt.ShiftModifier)
+            if mods & Qt.AltModifier:
+                self.current_modifiers.append(Qt.AltModifier)
+            if mods & Qt.MetaModifier:
+                self.current_modifiers.append(Qt.MetaModifier)
+
+            # Create key sequence
+            combo_int = int(mods) | key
+            key_seq = QKeySequence(combo_int)
+            self.setText(key_seq.toString())
+
+            self.shortcutChanged.emit(self.current_key, self.current_modifiers)
+            return True
+
+        return super().event(event)
+
 
 class ScreenshotOverlay(QWidget):
     screenshot_taken = pyqtSignal(QPixmap)
@@ -148,7 +309,14 @@ class ScreenshotOverlay(QWidget):
             # Only capture if selection is larger than a few pixels
             if width > 5 and height > 5:
                 # Capture the actual screen region
-                screenshot = pyautogui.screenshot(region=(x1, y1, width, height))
+                #screenshot = pyautogui.screenshot(region=(x1, y1, width, height))
+                scale = float(os.environ.get("QT_SCALE_FACTOR", "1"))
+                scaled_x = int(x1 * scale)
+                scaled_y = int(y1 * scale)
+                scaled_w = int(width * scale)
+                scaled_h = int(height * scale)
+
+                screenshot = pyautogui.screenshot(region=(scaled_x, scaled_y, scaled_w, scaled_h))
 
                 # **ADJUSTED CONVERSION**
                 screenshot = screenshot.convert('RGB')  # Ensure RGB mode
@@ -294,10 +462,13 @@ class MainWindow(QMainWindow):
         self.screenshot_tool.screenshot_taken.connect(self.on_screenshot_taken)
         self.ocr = OCR(self, cfg)
         self.lang_changed.connect(self.on_lang_change)
+        cfg.ocrcut.valueChanged.connect(self.update_ocr_shortcut)
+        cfg.tlcut.valueChanged.connect(self.update_translation_shortcut)
+        cfg.clcut.valueChanged.connect(self.update_clear_shortcut)
+        cfg.copycut.valueChanged.connect(self.update_copy_shortcut)
 
     def setup_theme(self):
-        main_color_hex = self.get_main_color_hex()
-        setThemeColor(main_color_hex)
+        setThemeColor(getSystemAccentColor())
         if isDarkTheme():
             theme_stylesheet = """
                 QWidget {
@@ -321,10 +492,6 @@ class MainWindow(QMainWindow):
                 }
             """
         QApplication.instance().setStyleSheet(theme_stylesheet)
-
-    def get_main_color_hex(self):
-        color = UISettings().get_color_value(UIColorType.ACCENT)
-        return f'#{int((color.r)):02x}{int((color.g)):02x}{int((color.b )):02x}'
 
     def update_theme(self):
         self.setup_theme()
@@ -494,13 +661,15 @@ class MainWindow(QMainWindow):
         card_layout.addSpacing(20)
         card_layout.addWidget(self.miscellaneous_title, alignment=Qt.AlignmentFlag.AlignTop)
 
-        self.card_shortcuts = SwitchSettingCard(
+        '''self.card_shortcuts = SwitchSettingCard(
             icon=FluentIcon.TILES,
             title=QCoreApplication.translate("MainWindow","Enable keyboard shortcuts"),
-            content=QCoreApplication.translate("MainWindow","Press F1 to translate, F2 to clear windows, F3 to copy translation to the clipboard,\nF5 to launch OCR."),
             configItem=cfg.shortcuts
         )
-        card_layout.addWidget(self.card_shortcuts, alignment=Qt.AlignmentFlag.AlignTop)
+        card_layout.addWidget(self.card_shortcuts, alignment=Qt.AlignmentFlag.AlignTop)'''
+
+        self.card_editshortcuts = ShortcutsCard()
+        card_layout.addWidget(self.card_editshortcuts, alignment=Qt.AlignmentFlag.AlignTop)
 
         self.card_setlanguage = ComboBoxSettingCard(
             configItem=cfg.language,
@@ -590,17 +759,35 @@ class MainWindow(QMainWindow):
             parent=self
         )
 
-    def keyPressEvent(self, event):
+    '''def keyPressEvent(self, event):
         if (cfg.get(cfg.shortcuts) is True):
-            if event.key() == Qt.Key_F1:
+            if event.key() == Qt.Key_F2:
                 self.tl_button.click()
-            elif event.key() == Qt.Key_F2:
-                self.cl_button.click()
             elif event.key() == Qt.Key_F3:
-                self.selectandcopy()
+                self.cl_button.click()
             elif event.key() == Qt.Key_F5:
+                self.selectandcopy()
+            elif event.key() == Qt.Key_F1:
                 self.screenshot_start()
+        super().keyPressEvent(event)'''
+
+    def keyPressEvent(self, event):
+        if cfg.get(cfg.shortcuts):
+            pressed = QKeySequence(int(event.modifiers()) | event.key())
+
+            if pressed.matches(cfg.get(cfg.ocrcut)) == QKeySequence.ExactMatch:
+                self.screenshot_start()
+            elif pressed.matches(cfg.get(cfg.tlcut)) == QKeySequence.ExactMatch:
+                self.tl_button.click()
+            elif pressed.matches(cfg.get(cfg.clcut)) == QKeySequence.ExactMatch:
+                self.cl_button.click()
+            elif pressed.matches(cfg.get(cfg.copycut)) == QKeySequence.ExactMatch:
+                self.selectandcopy()
+
         super().keyPressEvent(event)
+
+
+
 
     def check_packages(self):
 
@@ -950,6 +1137,18 @@ class MainWindow(QMainWindow):
             duration=2000,
             parent=self
         )
+
+    def update_ocr_shortcut(self, shortcut):
+        self.card_editshortcuts.set_ocr_shortcut(shortcut)
+ 
+    def update_translation_shortcut(self, shortcut):
+        self.card_editshortcuts.set_translation_shortcut(shortcut)
+ 
+    def update_clear_shortcut(self, shortcut):
+        self.card_editshortcuts.set_clear_shortcut(shortcut)
+ 
+    def update_copy_shortcut(self, shortcut):
+        self.card_editshortcuts.set_copy_shortcut(shortcut)
 
     @pyqtSlot()
     def start_translation_process(self):

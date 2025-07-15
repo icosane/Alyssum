@@ -4,7 +4,7 @@ a = Analysis(
     ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py', './AlyssumResources/tesseract.py'],
     pathex=[],
     datas=[('AlyssumResources','AlyssumResources')],
-    hiddenimports=['PyQt5', 'winrt.windows.ui.viewmanagement', 'qfluentwidgets'],
+    hiddenimports=['PyQt5', 'qfluentwidgets'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

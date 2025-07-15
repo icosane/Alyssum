@@ -15,7 +15,6 @@ class OCRRWorker(QThread):
         super().__init__()
         self.pixmap = pixmap
         self.lang = lang
-        print(self.lang)
 
     def run(self):
         try:
@@ -82,6 +81,8 @@ class OCR:
             "bn": "ben",  # Bengali
             "bg": "bul",  # Bulgarian
             "ca": "cat",  # Catalan
+            "zh": "chi_sim",  # Chinese
+            "zh_tw": "chi_tra",  # Chinese
             "cs": "ces",  # Czech
             "da": "dan",  # Danish
             "de": "deu",  # German
