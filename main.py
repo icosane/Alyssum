@@ -1,16 +1,17 @@
 import sys, os
 from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QFileDialog
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent
-sys.stdout = open(os.devnull, 'w')
+#sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition
 from qframelesswindow.utils import getSystemAccentColor
 from AlyssumResources.config import cfg, TranslationPackage
 from AlyssumResources.argos_utils import update_package
 from AlyssumResources.translator import TextTranslator
 from AlyssumResources.tesseract import OCR
+from AlyssumResources.file_translator import FileTranslator
 import shutil
 import traceback
 import glob
@@ -102,6 +103,14 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
         select_and_copy_shortcut = cfg.get(cfg.copycut).toString()
         self.modeButton3.setText(select_and_copy_shortcut)
 
+        # Fifth group
+        self.modeButton4 = ShortcutEdit()
+        self.modeLabel4 = BodyLabel(QCoreApplication.translate("MainWindow", "Configure file translator shortcut"))
+        self.modeButton4.setFixedWidth(155)
+        self.modeButton4.shortcutChanged.connect(self.updateFileShortcut)
+        file_shortcut = cfg.get(cfg.filecut).toString()
+        self.modeButton4.setText(file_shortcut)
+
         # Adjust the internal layout
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
         self.viewLayout.setSpacing(0)
@@ -111,6 +120,7 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
         self.add(self.modeLabel1, self.modeButton1)
         self.add(self.modeLabel2, self.modeButton2)
         self.add(self.modeLabel3, self.modeButton3)
+        self.add(self.modeLabel4, self.modeButton4)
 
     def add(self, label, widget):
         w = QWidget()
@@ -148,6 +158,11 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
         shortcut_str = self._modifiers_to_string(key, modifiers)
         shortcut = QKeySequence(shortcut_str)
         cfg.set(cfg.copycut, shortcut)
+
+    def updateFileShortcut(self, key, modifiers):
+        shortcut_str = self._modifiers_to_string(key, modifiers)
+        shortcut = QKeySequence(shortcut_str)
+        cfg.set(cfg.filecut, shortcut)
 
     def _modifiers_to_string(self, key, modifiers):
         names = []
@@ -425,6 +440,7 @@ class MainWindow(QMainWindow):
     theme_changed = pyqtSignal()
     package_changed = pyqtSignal()
     lang_changed = pyqtSignal()
+    fileSelected = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -461,6 +477,7 @@ class MainWindow(QMainWindow):
         self.screenshot_tool = ScreenshotTool(parent=self)
         self.screenshot_tool.screenshot_taken.connect(self.on_screenshot_taken)
         self.ocr = OCR(self, cfg)
+        self.file_translator = FileTranslator(self, cfg)
         self.lang_changed.connect(self.on_lang_change)
         cfg.ocrcut.valueChanged.connect(self.update_ocr_shortcut)
         cfg.tlcut.valueChanged.connect(self.update_translation_shortcut)
@@ -569,15 +586,37 @@ class MainWindow(QMainWindow):
         self.settings_button = TransparentToolButton(FluentIcon.SETTING)
         self.copy_button = TransparentToolButton(FluentIcon.COPY)
         self.ocr_button = TransparentToolButton(FluentIcon.CAMERA)
+        self.file_button = TransparentToolButton(FluentIcon.FOLDER)
 
         settings_layout = QHBoxLayout()
         settings_layout.addWidget(self.settings_button)
         settings_layout.addWidget(self.copy_button)
         settings_layout.addWidget(self.ocr_button)
+        settings_layout.addWidget(self.file_button)
         settings_layout.addStretch()
         settings_layout.setContentsMargins(5, 5, 5, 5)
 
+        self.progressbar = IndeterminateProgressBar(start=False)
+        main_layout.addWidget(self.progressbar)
+
         main_layout.addLayout(settings_layout)
+
+        #tooltips
+        self.settings_button.setToolTip(QCoreApplication.translate("MainWindow", "Settings"))
+        self.settings_button.setToolTipDuration(2000)
+        self.settings_button.installEventFilter(ToolTipFilter(self.settings_button, 0, ToolTipPosition.TOP))
+
+        self.copy_button.setToolTip(QCoreApplication.translate("MainWindow", "Copy to clipboard"))
+        self.copy_button.setToolTipDuration(2000)
+        self.copy_button.installEventFilter(ToolTipFilter(self.copy_button, 0, ToolTipPosition.TOP))
+
+        self.ocr_button.setToolTip(QCoreApplication.translate("MainWindow", "Start OCR"))
+        self.ocr_button.setToolTipDuration(2000)
+        self.ocr_button.installEventFilter(ToolTipFilter(self.ocr_button, 0, ToolTipPosition.TOP))
+
+        self.file_button.setToolTip(QCoreApplication.translate("MainWindow", "Open file picker"))
+        self.file_button.setToolTipDuration(2000)
+        self.file_button.installEventFilter(ToolTipFilter(self.file_button, 0, ToolTipPosition.TOP))
 
         #connect
         self.settings_button.clicked.connect(self.show_settings_page)
@@ -585,6 +624,7 @@ class MainWindow(QMainWindow):
         self.ocr_button.clicked.connect(self.screenshot_start)
         self.tl_button.clicked.connect(self.start_translation_process)
         self.cl_button.clicked.connect(self.clearinpoutw)
+        self.file_button.clicked.connect(self.start_file_translation)
 
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
@@ -752,18 +792,6 @@ class MainWindow(QMainWindow):
             parent=self
         )
 
-    '''def keyPressEvent(self, event):
-        if (cfg.get(cfg.shortcuts) is True):
-            if event.key() == Qt.Key_F2:
-                self.tl_button.click()
-            elif event.key() == Qt.Key_F3:
-                self.cl_button.click()
-            elif event.key() == Qt.Key_F5:
-                self.selectandcopy()
-            elif event.key() == Qt.Key_F1:
-                self.screenshot_start()
-        super().keyPressEvent(event)'''
-
     def keyPressEvent(self, event):
         if cfg.get(cfg.shortcuts):
             pressed = QKeySequence(int(event.modifiers()) | event.key())
@@ -776,6 +804,8 @@ class MainWindow(QMainWindow):
                 self.cl_button.click()
             elif pressed.matches(cfg.get(cfg.copycut)) == QKeySequence.ExactMatch:
                 self.selectandcopy()
+            elif pressed.matches(cfg.get(cfg.filecut)) == QKeySequence.ExactMatch:
+                self.start_file_translation()
 
         super().keyPressEvent(event)
 
@@ -1143,9 +1173,110 @@ class MainWindow(QMainWindow):
     def update_copy_shortcut(self, shortcut):
         self.card_editshortcuts.set_copy_shortcut(shortcut)
 
+    def open_file_dialog(self):
+        initial_dir = self.last_directory if self.last_directory else ""
+
+        self.file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            QCoreApplication.translate("MainWindow", "Select file"),
+            initial_dir,
+            QCoreApplication.translate("MainWindow",
+                "Text files (*.pdf *.epub *.docx *.txt);;"
+                "All Files (*)")
+        )
+        if self.file_path:
+            self.last_directory = os.path.dirname(self.file_path)
+            if self.is_document(self.file_path):
+                self.fileSelected.emit(self.file_path)
+            elif self.is_not_supported_document(self.file_path):
+                InfoBar.error(
+                    title=QCoreApplication.translate("MainWindow", "Error"),
+                    content=QCoreApplication.translate("MainWindow", "This file format is not fully supported. Please convert it to .docx and try again"),
+                    orient=Qt.Orientation.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.BOTTOM,
+                    duration=4000,
+                    parent=window
+                )
+            else:
+                InfoBar.error(
+                    title=QCoreApplication.translate("MainWindow", "Error"),
+                    content=QCoreApplication.translate("MainWindow", "Dropped file is not supported"),
+                    orient=Qt.Orientation.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.BOTTOM,
+                    duration=4000,
+                    parent=window
+                )
+
+    def is_document(self, file_path):
+        file_extensions = ['.pdf', '.epub', '.docx', '.txt']
+        _, ext = os.path.splitext(file_path)
+        return ext.lower() in file_extensions
+
+    def is_not_supported_document(self, file_path):
+        file_extensions = ['.doc', '.odt', '.rtf']
+        _, ext = os.path.splitext(file_path)
+        return ext.lower() in file_extensions
+
+    def handle_file_save_path(self, default_name, translated_content):
+        initial_dir = self.last_directory if self.last_directory else ""
+        default_name = os.path.join(initial_dir, os.path.basename(default_name))
+
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            QCoreApplication.translate('MainWindow',"Save Translated File"),
+            default_name,
+            QCoreApplication.translate('MainWindow',"All Files (*)")
+        )
+
+        if hasattr(self.file_translator, 'translation_worker'):
+            if file_path:
+                self.last_directory = os.path.dirname(file_path)
+                self.file_translator.translation_worker.save_path = file_path
+                self.file_translator.translation_worker.translated_content = translated_content
+            else:
+                self.file_translator.translation_worker.save_path = ""
+                self.file_translator.translation_worker.abort()
+                self.progressbar.stop()
+
+    def on_file_translation_done(self, result, success):
+        self.progressbar.stop()
+
+        if success:
+            InfoBar.success(
+                title=QCoreApplication.translate('MainWindow',"Success"),
+                content=QCoreApplication.translate('MainWindow', "Translation saved to <b>{}</b>").format(result),
+                orient=Qt.Orientation.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=4000,
+                parent=self
+            )
+        elif result:  # Error message
+            InfoBar.error(
+                title=QCoreApplication.translate('MainWindow',"Error"),
+                content=result,
+                orient=Qt.Orientation.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=4000,
+                parent=self
+            )
+
+        if hasattr(self.file_translator, 'translation_worker'):
+            self.file_translator.translation_worker.abort()
+
     @pyqtSlot()
     def start_translation_process(self):
         self.translator.start_translation(self.textinputw.toPlainText())
+
+    @pyqtSlot()
+    def start_file_translation(self):
+        self.open_file_dialog()
+        self.progressbar.start()
+        self.file_translator.start_translation(self.file_path)
 
     @pyqtSlot()
     def start_ocr_process(self, pixmap):
@@ -1235,6 +1366,6 @@ if __name__ == "__main__":
 
     window = MainWindow()
     window.show()
-    sys.excepthook = ErrorHandler()
-    sys.stderr = ErrorHandler()
+    #sys.excepthook = ErrorHandler()
+    #sys.stderr = ErrorHandler()
     sys.exit(app.exec())

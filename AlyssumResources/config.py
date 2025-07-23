@@ -143,6 +143,7 @@ class Config(QConfig):
     tlcut = KeyCombinationConfigItem("Shortcuts", "Translation", "F2")
     clcut = KeyCombinationConfigItem("Shortcuts", "Clear windows", "F3")
     copycut = KeyCombinationConfigItem("Shortcuts", "SelectAndCopy", "F5")
+    filecut = KeyCombinationConfigItem("Shortcuts", "FileTranslation", "F6")
 
 
 cfg = Config()
