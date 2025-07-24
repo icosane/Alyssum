@@ -5,6 +5,7 @@ A simple GUI for Argos Translate.
 - **Languages**: Support for most Argos Translate packages (new ones need manual adding to the list)
 - **OCR support**: Integrated Google Tesseract engine
 - **Configurable shortcuts**: By default you can use F1 to launch OCR, F2 to translate, F3 to clear windows, F5 to copy translation to the clipboard. All of them are remappable in settings. (Shortcuts are disabled by default, enable in settings)
+- **File translation**: Translate .txt, .odt, .odp, .docx, .pptx, .epub, .html, .srt, .pdf
 
 ## Getting Started
 
@@ -49,6 +50,10 @@ I prefer the first option, which has the following file structure:
 
 You can also open the extracted folder in [Visual Studio Code](https://code.visualstudio.com/download) / [VSCodium](https://github.com/VSCodium/vscodium/releases), install Python extension, then press ```Ctrl+Shift+P```, type ```Python: Create Environment```, select ```.venv```, use ```requirements.txt``` and wait for the process to complete.
 
+6. Enable UTF-8 support in Windows (for translating files with non-Latin characters): 
+
+    Go to Windows Settings > Time & language > Language & region > Administrative language settings > Change system locale, and check Beta: Use Unicode UTF-8 for worldwide language support. Then reboot the PC for the change to take effect.
+
 ### Building .EXE
 1. Install PyInstaller in your .venv:
 ```pip install pyinstaller```
@@ -68,6 +73,8 @@ You can also open the extracted folder in [Visual Studio Code](https://code.visu
 - [Tesseract portable](https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/826079-portable-tesseract)
 - [Letter t icons](https://www.flaticon.com/free-icons/letter-t) - Letter t icons created by Luch Phou - Flaticon
 - [Sl-Alex for ShortcutEdit](https://sl-alex.net/gui/2022/08/21/shortcutedit_capturing_shortcuts_in_pyqt/)
+- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files)
+- [JSchmie for PDF support in argos-translate-files](https://github.com/LibreTranslate/argos-translate-files/pull/13)
 
 ## Screenshots
 <div style="display: flex; flex-direction: column;">

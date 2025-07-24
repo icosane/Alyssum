@@ -6,3 +6,4 @@ pillow==11.2.1
 pytesseract==0.3.13
 opencv-python==4.12.0.88
 pyautogui==0.9.54
+git+https://github.com/JSchmie/argos-translate-files.git

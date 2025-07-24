@@ -25,6 +25,7 @@ class ArgosPathManager:
 
         # Set environment variables
         os.environ.update({
+            "PYTHONIOENCODING": 'utf-8',
             "XDG_DATA_HOME": str(Path(ARGOS_PACKAGES_DIR) / "data"),
             "XDG_CONFIG_HOME": str(Path(ARGOS_PACKAGES_DIR) / "config"),
             "XDG_CACHE_HOME": str(Path(ARGOS_PACKAGES_DIR) / "cache"),

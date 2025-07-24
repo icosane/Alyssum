@@ -1,8 +1,8 @@
 import sys, os
 from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QFileDialog, QSizePolicy
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent
-#sys.stdout = open(os.devnull, 'w')
+sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
 from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition
@@ -456,6 +456,19 @@ class MainWindow(QMainWindow):
             'settings': {}
         }
 
+
+        self.scroll_area_main = ScrollArea()
+        self.scroll_area_main.setWidgetResizable(True)
+        self.scroll_area_main.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.scroll_area_main.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll_area_main.setFixedHeight(50)
+
+        self.scroll_area_settings = ScrollArea()
+        self.scroll_area_settings.setWidgetResizable(True)
+        self.scroll_area_settings.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.scroll_area_settings.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll_area_settings.setFixedHeight(50)
+
         self.lang_layout_main = QHBoxLayout()
         self.lang_widget_main = QWidget()
         self.lang_widget_main.setLayout(self.lang_layout_main)
@@ -563,7 +576,8 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout()
         button_layout = QHBoxLayout()
 
-        main_layout.addWidget(self.lang_widget_main)
+        self.scroll_area_main.setWidget(self.lang_widget_main)
+        main_layout.addWidget(self.scroll_area_main)
         self.check_packages()
 
         font = QFont()
@@ -681,7 +695,9 @@ class MainWindow(QMainWindow):
         cfg.package.valueChanged.connect(self.package_changed.emit)
         cfg.package.valueChanged.connect(self.lang_changed.emit)
 
-        card_layout.addWidget(self.lang_widget_settings)
+        #card_layout.addWidget(self.lang_widget_settings)
+        self.scroll_area_settings.setWidget(self.lang_widget_settings)
+        card_layout.addWidget(self.scroll_area_settings)
         self.check_packages()
 
         self.card_deleteargosmodel = PushSettingCard(
@@ -756,6 +772,7 @@ class MainWindow(QMainWindow):
 
         self.card_widget = QWidget()
         self.card_widget.setLayout(card_layout)
+        self.card_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         card_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.scroll_area.setWidget(self.card_widget)
         settings_layout.addWidget(self.scroll_area)
@@ -821,6 +838,7 @@ class MainWindow(QMainWindow):
             'fr_en': 'French → English',
             'it_en': 'Italian → English',
             'ja_en': 'Japanese → English',
+            'ko_en': 'Korean → English',
             'sq_en': 'Albanian → English',
             'ar_en': 'Arabic → English',
             'az_en': 'Azerbaijani → English',
@@ -918,6 +936,7 @@ class MainWindow(QMainWindow):
             'fr_en': TranslationPackage.FR_TO_EN,
             'it_en': TranslationPackage.IT_TO_EN,
             'ja_en': TranslationPackage.JA_TO_EN,
+            'ko_en': TranslationPackage.KO_TO_EN,
             'zh_en': TranslationPackage.ZH_TO_EN,
             'sq_en': TranslationPackage.SQ_TO_EN,
             'ar_en': TranslationPackage.AR_TO_EN,
@@ -1061,9 +1080,9 @@ class MainWindow(QMainWindow):
 
             # Show/hide the widget based on available languages
             if layout == self.lang_layout_main:
-                self.lang_widget_main.setVisible(len(available_languages) > 0)
+                self.scroll_area_main.setVisible(len(available_languages) > 0)
             else:
-                self.lang_widget_settings.setVisible(len(available_languages) > 0)
+                self.scroll_area_settings.setVisible(len(available_languages) > 0)
 
         update_layout(self.lang_layout_main)
         update_layout(self.lang_layout_settings)
@@ -1210,36 +1229,14 @@ class MainWindow(QMainWindow):
                 )
 
     def is_document(self, file_path):
-        file_extensions = ['.pdf', '.epub', '.docx', '.txt']
+        file_extensions = ['.pdf', '.epub', '.docx', '.txt', '.odp', '.pptx', '.srt', '.odt', '.html']
         _, ext = os.path.splitext(file_path)
         return ext.lower() in file_extensions
 
     def is_not_supported_document(self, file_path):
-        file_extensions = ['.doc', '.odt', '.rtf']
+        file_extensions = ['.doc', '.rtf']
         _, ext = os.path.splitext(file_path)
         return ext.lower() in file_extensions
-
-    def handle_file_save_path(self, default_name, translated_content):
-        initial_dir = self.last_directory if self.last_directory else ""
-        default_name = os.path.join(initial_dir, os.path.basename(default_name))
-
-
-        file_path, _ = QFileDialog.getSaveFileName(
-            self,
-            QCoreApplication.translate('MainWindow',"Save Translated File"),
-            default_name,
-            QCoreApplication.translate('MainWindow',"All Files (*)")
-        )
-
-        if hasattr(self.file_translator, 'translation_worker'):
-            if file_path:
-                self.last_directory = os.path.dirname(file_path)
-                self.file_translator.translation_worker.save_path = file_path
-                self.file_translator.translation_worker.translated_content = translated_content
-            else:
-                self.file_translator.translation_worker.save_path = ""
-                self.file_translator.translation_worker.abort()
-                self.progressbar.stop()
 
     def on_file_translation_done(self, result, success):
         self.progressbar.stop()
@@ -1247,7 +1244,7 @@ class MainWindow(QMainWindow):
         if success:
             InfoBar.success(
                 title=QCoreApplication.translate('MainWindow',"Success"),
-                content=QCoreApplication.translate('MainWindow', "Translation saved to <b>{}</b>").format(result),
+                content=QCoreApplication.translate('MainWindow', "Translated file saved to <b>{}</b>").format(result),
                 orient=Qt.Orientation.Horizontal,
                 isClosable=True,
                 position=InfoBarPosition.BOTTOM,
@@ -1275,7 +1272,6 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def start_file_translation(self):
         self.open_file_dialog()
-        self.progressbar.start()
         self.file_translator.start_translation(self.file_path)
 
     @pyqtSlot()
@@ -1366,6 +1362,6 @@ if __name__ == "__main__":
 
     window = MainWindow()
     window.show()
-    #sys.excepthook = ErrorHandler()
-    #sys.stderr = ErrorHandler()
+    sys.excepthook = ErrorHandler()
+    sys.stderr = ErrorHandler()
     sys.exit(app.exec())
