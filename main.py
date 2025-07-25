@@ -797,18 +797,31 @@ class MainWindow(QMainWindow):
         self.textinputw.clear()
 
     def selectandcopy(self):
-        self.textoutputw.selectAll()
-        self.textoutputw.copy()
+        empty = not self.textoutputw.toPlainText().strip()
 
-        InfoBar.success(
-            title=QCoreApplication.translate("MainWindow", "Success"),
-            content=QCoreApplication.translate("MainWindow", "Successfully copied to the clipboard"),
-            orient=Qt.Orientation.Horizontal,
-            isClosable=False,
-            position=InfoBarPosition.BOTTOM,
-            duration=4000,
-            parent=self
-        )
+        if empty:
+            InfoBar.info(
+                title=QCoreApplication.translate("MainWindow", "Information"),
+                content=QCoreApplication.translate("MainWindow", "Nothing to copy"),
+                orient=Qt.Orientation.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.BOTTOM,
+                duration=4000,
+                parent=self
+            )
+        else:
+            self.textoutputw.selectAll()
+            self.textoutputw.copy()
+
+            InfoBar.success(
+                title=QCoreApplication.translate("MainWindow", "Success"),
+                content=QCoreApplication.translate("MainWindow", "Successfully copied to the clipboard"),
+                orient=Qt.Orientation.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.BOTTOM,
+                duration=4000,
+                parent=self
+            )
 
     def keyPressEvent(self, event):
         if cfg.get(cfg.shortcuts):
