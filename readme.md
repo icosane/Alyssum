@@ -4,7 +4,7 @@ A simple GUI for Argos Translate.
 
 - **Languages**: Support for most Argos Translate packages (new ones need manual adding to the list)
 - **OCR support**: Integrated Google Tesseract engine
-- **Configurable shortcuts**: By default you can use F1 to launch OCR, F2 to translate, F3 to clear windows, F5 to copy translation to the clipboard. All of them are remappable in settings. (Shortcuts are disabled by default, enable in settings)
+- **Configurable shortcuts**: By default you can use F1 to launch OCR, F2 to translate, F3 to clear windows, F5 to copy translation to the clipboard, F6 to translate files. All of them are remappable in settings. (Shortcuts are disabled by default, enable in settings)
 - **File translation**: Translate .txt, .odt, .odp, .docx, .pptx, .epub, .html, .srt, .pdf
 
 ## Getting Started

@@ -1,7 +1,7 @@
 import sys, os
 from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QFileDialog, QSizePolicy
-from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent
+from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent, QSettings
 sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
@@ -446,8 +446,9 @@ class MainWindow(QMainWindow):
         super().__init__(parent=parent)
         self.setWindowTitle(QCoreApplication.translate("MainWindow", "Alyssum"))
         self.setWindowIcon(QIcon(os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")))
-        self.setGeometry(100,100,700,850)
+        self.settings = QSettings('icosane', 'Alyssum')
         self.setMinimumSize(700,850)
+        self.restore_settings()
         self.last_directory = ""
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
@@ -1167,7 +1168,22 @@ class MainWindow(QMainWindow):
         for widget in QApplication.topLevelWidgets():
             widget.close()
 
+        self.save_settings()
+
         super().closeEvent(event)
+
+    def save_settings(self):
+        self.settings.setValue("size", self.size())
+        self.settings.setValue("pos", self.pos())
+
+    def restore_settings(self):
+        size = self.settings.value("size")
+        pos = self.settings.value("pos")
+
+        if size is not None:
+            self.resize(size)
+        if pos is not None:
+            self.move(pos)
 
     def restartinfo(self):
         InfoBar.warning(
@@ -1178,6 +1194,14 @@ class MainWindow(QMainWindow):
             position=InfoBarPosition.TOP_RIGHT,
             duration=2000,
             parent=self
+        )
+
+    def wheelEvent(self, event):
+        self.scroll_area_main.horizontalScrollBar().setValue(
+            self.scroll_area_main.horizontalScrollBar().value() - event.angleDelta().y()
+        )
+        self.scroll_area_settings.horizontalScrollBar().setValue(
+            self.scroll_area_settings.horizontalScrollBar().value() - event.angleDelta().y()
         )
 
     def update_ocr_shortcut(self, shortcut):
