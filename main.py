@@ -1109,7 +1109,7 @@ class MainWindow(QMainWindow):
         if success:
             InfoBar.success(
                 title=QCoreApplication.translate('MainWindow',"Success"),
-                content=QCoreApplication.translate('MainWindow', "Translated file saved to <b>{}</b>").format(result),
+                content=QCoreApplication.translate('MainWindow', "Translated file saved to {}").format(result),
                 orient=Qt.Orientation.Horizontal,
                 isClosable=True,
                 position=InfoBarPosition.BOTTOM,
