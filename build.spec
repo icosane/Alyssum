@@ -1,8 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_dynamic_libs
+cuda_binaries = collect_dynamic_libs('nvidia')
 
 a = Analysis(
     ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py', './AlyssumResources/tesseract.py'],
     pathex=[],
+    binaries=cuda_binaries,
     datas=[('AlyssumResources','AlyssumResources')],
     hiddenimports=['PyQt5', 'qfluentwidgets'],
     hookspath=[],

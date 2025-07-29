@@ -7,16 +7,44 @@ import warnings
 warnings.filterwarnings("ignore")
 from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition
 from qframelesswindow.utils import getSystemAccentColor
-from AlyssumResources.config import cfg, TranslationPackage
+from AlyssumResources.config import cfg, TranslationPackage, available_packages
 from AlyssumResources.argos_utils import update_package
 from AlyssumResources.translator import TextTranslator
 from AlyssumResources.tesseract import OCR
 from AlyssumResources.file_translator import FileTranslator
+from ctranslate2 import get_cuda_device_count
 import shutil
 import traceback
 import glob
 from pathlib import Path
 import pyautogui, re
+
+def get_lib_paths():
+    if getattr(sys, 'frozen', False):  # Running inside PyInstaller
+        base_dir = os.path.join(sys.prefix)
+    else:  # Running inside a virtual environment
+        base_dir = os.path.join(sys.prefix, "Lib", "site-packages")
+
+    nvidia_base_libs = os.path.join(base_dir, "nvidia")
+    cuda_runtime = os.path.join(nvidia_base_libs, "cuda_runtime", "bin")
+    cublas = os.path.join(nvidia_base_libs, "cublas", "bin")
+    cudnn = os.path.join(nvidia_base_libs, "cudnn", "bin")
+    cuda_cupti = os.path.join(nvidia_base_libs, "cuda_cupti", "bin")
+    cuda_nvrtc = os.path.join(nvidia_base_libs, "cuda_nvrtc", "bin")
+    cufft = os.path.join(nvidia_base_libs, "cufft", "bin")
+    curand = os.path.join(nvidia_base_libs, "curand", "bin")
+    cusolver = os.path.join(nvidia_base_libs, "cusolver", "bin")
+    cusparse = os.path.join(nvidia_base_libs, "cusparse", "bin")
+    nvjitlink = os.path.join(nvidia_base_libs, "nvjitlink", "bin")
+    nvtx = os.path.join(nvidia_base_libs, "nvtx", "bin")
+
+    return [cuda_runtime, cublas, cudnn, cuda_cupti, cuda_nvrtc, cufft, curand, cusolver, cusparse, nvjitlink, nvtx]
+
+
+if get_cuda_device_count() != 0:
+    for dll_path in get_lib_paths():
+        if os.path.exists(dll_path):
+            os.environ["PATH"] = dll_path + os.pathsep + os.environ["PATH"]
 
 
 if getattr(sys, 'frozen', False):
@@ -675,18 +703,8 @@ class MainWindow(QMainWindow):
             icon=FluentIcon.CLOUD_DOWNLOAD,
             title=QCoreApplication.translate("MainWindow","Argos Translate package"),
             content=QCoreApplication.translate("MainWindow", "Change translation package"),
-            texts=[
-                "None", "sq_en", "ar_en", "az_en", "eu_en", "bn_en", "bg_en", "ca_en", "zt_en", "zh_en",
-                "cs_en", "da_en", "nl_en", "en_sq", "en_ar", "en_az", "en_eu", "en_bn", "en_bg",
-                "en_ca", "en_zh", "en_zh_tw", "en_cs", "en_da", "en_nl", "en_eo", "en_et", "en_fi",
-                "en_fr", "en_gl", "en_de", "en_el", "en_he", "en_hi", "en_hu", "en_id", "en_ga",
-                "en_it", "en_ja", "en_ko", "en_ky", "en_lv", "en_lt", "en_ms", "en_no", "en_fa", "en_pl",
-                "en_pt", "en_pt_br", "en_ro", "en_ru", "en_sk", "en_sl", "en_es", "en_sv", "en_tl",
-                "en_th", "en_tr", "en_uk", "en_ur", "eo_en", "et_en", "fi_en", "fr_en", "gl_en",
-                "de_en", "el_en", "he_en", "hi_en", "hu_en", "id_en", "ga_en", "it_en", "ja_en",
-                "ko_en", "ky_en", "lv_en", "lt_en", "ms_en", "no_en", "fa_en", "pl_en", "pt_br_en", "pt_en",
-                "pt_es", "ro_en", "ru_en", "sk_en", "sl_en", "es_en", "es_pt", "sv_en", "tl_en",
-                "th_en", "tr_en", "uk_en", "ur_en"
+            texts=['None',
+                *[self.languages.get(f"{pkg.from_code}_{pkg.to_code}", f"{pkg.from_code} → {pkg.to_code}") for pkg in available_packages]
             ]
 
 
@@ -845,199 +863,9 @@ class MainWindow(QMainWindow):
 
     def check_packages(self):
 
-        languages = {
-            'en_ru': 'English → Russian',
-            'ru_en': 'Russian → English',
-            'de_en': 'German → English',
-            'fr_en': 'French → English',
-            'it_en': 'Italian → English',
-            'ja_en': 'Japanese → English',
-            'ko_en': 'Korean → English',
-            'sq_en': 'Albanian → English',
-            'ar_en': 'Arabic → English',
-            'az_en': 'Azerbaijani → English',
-            'eu_en': 'Basque → English',
-            'bn_en': 'Bengali → English',
-            'bg_en': 'Bulgarian → English',
-            'ca_en': 'Catalan → English',
-            'zt_en': 'Chinese (traditional) → English',
-            'zh_en': 'Chinese → English',
-            'cs_en': 'Czech → English',
-            'da_en': 'Danish → English',
-            'nl_en': 'Dutch → English',
-            'en_sq': 'English → Albanian',
-            'en_ar': 'English → Arabic',
-            'en_az': 'English → Azerbaijani',
-            'en_eu': 'English → Basque',
-            'en_bn': 'English → Bengali',
-            'en_bg': 'English → Bulgarian',
-            'en_ca': 'English → Catalan',
-            'en_zh': 'English → Chinese',
-            'en_zt': 'English → Chinese (traditional)',
-            'en_cs': 'English → Czech',
-            'en_da': 'English → Danish',
-            'en_nl': 'English → Dutch',
-            'en_eo': 'English → Esperanto',
-            'en_et': 'English → Estonian',
-            'en_fi': 'English → Finnish',
-            'en_fr': 'English → French',
-            'en_gl': 'English → Galician',
-            'en_de': 'English → German',
-            'en_el': 'English → Greek',
-            'en_he': 'English → Hebrew',
-            'en_hi': 'English → Hindi',
-            'en_hu': 'English → Hungarian',
-            'en_id': 'English → Indonesian',
-            'en_ga': 'English → Irish',
-            'en_it': 'English → Italian',
-            'en_ja': 'English → Japanese',
-            'en_ko': 'English → Korean',
-            'en_ky': 'English → Kyrgyz',
-            'en_lv': 'English → Latvian',
-            'en_lt': 'English → Lithuanian',
-            'en_ms': 'English → Malay',
-            'en_nb': 'English → Norwegian Bokmal',
-            'en_fa': 'English → Persian',
-            'en_pl': 'English → Polish',
-            'en_pt': 'English → Portuguese',
-            'en_pb': 'English → Portuguese (Brazil)',
-            'en_ro': 'English → Romanian',
-            'en_sk': 'English → Slovak',
-            'en_sl': 'English → Slovenian',
-            'en_es': 'English → Spanish',
-            'en_sv': 'English → Swedish',
-            'en_tl': 'English → Tagalog',
-            'en_th': 'English → Thai',
-            'en_tr': 'English → Turkish',
-            'en_uk': 'English → Ukrainian',
-            'en_ur': 'English → Urdu',
-            'eo_en': 'Esperanto → English',
-            'et_en': 'Estonian → English',
-            'fi_en': 'Finnish → English',
-            'gl_en': 'Galician → English',
-            'el_en': 'Greek → English',
-            'he_en': 'Hebrew → English',
-            'hi_en': 'Hindi → English',
-            'hu_en': 'Hungarian → English',
-            'id_en': 'Indonesian → English',
-            'ga_en': 'Irish → English',
-            'ky_en': 'Kyrgyz → English',
-            'lv_en': 'Latvian → English',
-            'lt_en': 'Lithuanian → English',
-            'ms_en': 'Malay → English',
-            'nb_en': 'Norwegian Bokmal → English',
-            'fa_en': 'Persian → English',
-            'pl_en': 'Polish → English',
-            'pb_en': 'Portuguese (Brazil) → English',
-            'pt_en': 'Portuguese → English',
-            'es_pt': 'Spanish → Portuguese',
-            'ro_en': 'Romanian → English',
-            'sk_en': 'Slovak → English',
-            'sl_en': 'Slovenian → Spanish',
-            'es_en': 'Spanish → English',
-            'sv_en': 'Swedish → English',
-            'tl_en': 'Tagalog → English',
-            'th_en': 'Thai → English',
-            'tr_en': 'Turkish → English',
-            'uk_en': 'Ukrainian → English',
-            'ur_en': 'Urdu → English',
-        }
+        self.languages = {f"{pkg.from_code}_{pkg.to_code}": f"{pkg}" for pkg in available_packages}
 
-        translation_mapping = {
-            'en_ru': TranslationPackage.EN_TO_RU,
-            'ru_en': TranslationPackage.RU_TO_EN,
-            'de_en': TranslationPackage.DE_TO_EN,
-            'fr_en': TranslationPackage.FR_TO_EN,
-            'it_en': TranslationPackage.IT_TO_EN,
-            'ja_en': TranslationPackage.JA_TO_EN,
-            'ko_en': TranslationPackage.KO_TO_EN,
-            'zh_en': TranslationPackage.ZH_TO_EN,
-            'sq_en': TranslationPackage.SQ_TO_EN,
-            'ar_en': TranslationPackage.AR_TO_EN,
-            'az_en': TranslationPackage.AZ_TO_EN,
-            'eu_en': TranslationPackage.EU_TO_EN,
-            'bn_en': TranslationPackage.BN_TO_EN,
-            'bg_en': TranslationPackage.BG_TO_EN,
-            'ca_en': TranslationPackage.CA_TO_EN,
-            'zt_en': TranslationPackage.ZT_TO_EN,
-            'cs_en': TranslationPackage.CS_TO_EN,
-            'da_en': TranslationPackage.DA_TO_EN,
-            'nl_en': TranslationPackage.NL_TO_EN,
-            'en_sq': TranslationPackage.EN_TO_SQ,
-            'en_ar': TranslationPackage.EN_TO_AR,
-            'en_az': TranslationPackage.EN_TO_AZ,
-            'en_eu': TranslationPackage.EN_TO_EU,
-            'en_bn': TranslationPackage.EN_TO_BN,
-            'en_bg': TranslationPackage.EN_TO_BG,
-            'en_ca': TranslationPackage.EN_TO_CA,
-            'en_zh': TranslationPackage.EN_TO_ZH,
-            'en_zt': TranslationPackage.EN_TO_ZT,
-            'en_cs': TranslationPackage.EN_TO_CS,
-            'en_da': TranslationPackage.EN_TO_DA,
-            'en_nl': TranslationPackage.EN_TO_NL,
-            'en_eo': TranslationPackage.EN_TO_EO,
-            'en_et': TranslationPackage.EN_TO_ET,
-            'en_fi': TranslationPackage.EN_TO_FI,
-            'en_fr': TranslationPackage.EN_TO_FR,
-            'en_gl': TranslationPackage.EN_TO_GL,
-            'en_de': TranslationPackage.EN_TO_DE,
-            'en_el': TranslationPackage.EN_TO_EL,
-            'en_he': TranslationPackage.EN_TO_HE,
-            'en_hi': TranslationPackage.EN_TO_HI,
-            'en_hu': TranslationPackage.EN_TO_HU,
-            'en_id': TranslationPackage.EN_TO_ID,
-            'en_ga': TranslationPackage.EN_TO_GA,
-            'en_it': TranslationPackage.EN_TO_IT,
-            'en_ja': TranslationPackage.EN_TO_JA,
-            'en_ko': TranslationPackage.EN_TO_KO,
-            'en_lv': TranslationPackage.EN_TO_LV,
-            'en_lt': TranslationPackage.EN_TO_LT,
-            'en_ms': TranslationPackage.EN_TO_MS,
-            'en_nb': TranslationPackage.EN_TO_NB,
-            'en_fa': TranslationPackage.EN_TO_FA,
-            'en_pl': TranslationPackage.EN_TO_PL,
-            'en_pt': TranslationPackage.EN_TO_PT,
-            'en_pb': TranslationPackage.EN_TO_PB,
-            'en_ro': TranslationPackage.EN_TO_RO,
-            'en_sk': TranslationPackage.EN_TO_SK,
-            'en_sl': TranslationPackage.EN_TO_SL,
-            'en_es': TranslationPackage.EN_TO_ES,
-            'en_sv': TranslationPackage.EN_TO_SV,
-            'en_tl': TranslationPackage.EN_TO_TL,
-            'en_th': TranslationPackage.EN_TO_TH,
-            'en_tr': TranslationPackage.EN_TO_TR,
-            'en_uk': TranslationPackage.EN_TO_UK,
-            'en_ur': TranslationPackage.EN_TO_UR,
-            'eo_en': TranslationPackage.EO_TO_EN,
-            'et_en': TranslationPackage.ET_TO_EN,
-            'fi_en': TranslationPackage.FI_TO_EN,
-            'gl_en': TranslationPackage.GL_TO_EN,
-            'el_en': TranslationPackage.EL_TO_EN,
-            'he_en': TranslationPackage.HE_TO_EN,
-            'hi_en': TranslationPackage.HI_TO_EN,
-            'hu_en': TranslationPackage.HU_TO_EN,
-            'id_en': TranslationPackage.ID_TO_EN,
-            'ga_en': TranslationPackage.GA_TO_EN,
-            'lv_en': TranslationPackage.LV_TO_EN,
-            'lt_en': TranslationPackage.LT_TO_EN,
-            'ms_en': TranslationPackage.MS_TO_EN,
-            'nb_en': TranslationPackage.NB_TO_EN,
-            'fa_en': TranslationPackage.FA_TO_EN,
-            'pl_en': TranslationPackage.PL_TO_EN,
-            'pb_en': TranslationPackage.PB_TO_EN,
-            'pt_en': TranslationPackage.PT_TO_EN,
-            'es_pt': TranslationPackage.ES_TO_PT,
-            'ro_en': TranslationPackage.RO_TO_EN,
-            'sk_en': TranslationPackage.SK_TO_EN,
-            'sl_en': TranslationPackage.SL_TO_EN,
-            'es_en': TranslationPackage.ES_TO_EN,
-            'sv_en': TranslationPackage.SV_TO_EN,
-            'tl_en': TranslationPackage.TL_TO_EN,
-            'th_en': TranslationPackage.TH_TO_EN,
-            'tr_en': TranslationPackage.TR_TO_EN,
-            'uk_en': TranslationPackage.UK_TO_EN,
-            'ur_en': TranslationPackage.UR_TO_EN
-        }
+        translation_mapping = {f"{pkg.from_code}_{pkg.to_code}": getattr(TranslationPackage, f"{pkg.from_code.upper()}_TO_{pkg.to_code.upper()}", None) for pkg in available_packages}
 
         def update_layout(layout):
             layout_key = 'main' if layout == self.lang_layout_main else 'settings'
@@ -1051,7 +879,7 @@ class MainWindow(QMainWindow):
 
             # Find available languages
             available_languages = []
-            for language_pair, name in languages.items():
+            for language_pair, name in self.languages.items():
                 package_patterns = [
                     os.path.join(
                         base_dir,

@@ -2,7 +2,7 @@ A simple translator built on Argos Translate and Tesseract.
 
 ## Features
 
-- **Languages**: Support is available for most Argos Translate packages, although new packages will need to be manually added to the list.
+- **Languages**: Similar to those supported by Argos Translate
 - **OCR support**: Integrated Google Tesseract engine
 - **Configurable shortcuts**: By default, you can use the following keys for various functions: **F1** to launch OCR, **F2** to translate, **F3** to clear windows, **F5** to copy the translation to the clipboard, and **F6** to translate files. All of these shortcuts can be remapped in the settings. (Note that shortcuts are disabled by default; you can enable them in the settings.)
 - **File Translation**: You can translate the following file formats: **.txt**, **.odt**, **.odp**, **.docx**, **.pptx**, **.epub**, **.html**, **.srt**, and **.pdf**.
@@ -88,6 +88,9 @@ The folders can be named using either the format **langfrom_langto** or **transl
 ## Tesseract models
 You can obtain Tesseract models from either [this link](https://github.com/tesseract-ocr/tessdata_fast) or [this link](https://github.com/tesseract-ocr/tessdata). After downloading, place them in  **AlyssumResources\tesseract\share\tessdata**.
 
+## GPU Acceleration
+The application will detect and utilize the CUDA device if it is available in the system.
+
 ## Acknowledgments
 - [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
 - [Argos Translate](https://github.com/argosopentech/argos-translate)
@@ -98,6 +101,7 @@ You can obtain Tesseract models from either [this link](https://github.com/tesse
 - [opencv-python](https://github.com/opencv/opencv-python)
 - [pyautogui](https://github.com/asweigart/pyautogui)
 - [pillow](https://github.com/python-pillow/Pillow)
+- [cuda runtime libraries](https://pypi.org/user/nvidia/)
 - [PyInstaller](https://pyinstaller.org/)
 - [Tesseract portable](https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/826079-portable-tesseract)
 - [Letter t icons](https://www.flaticon.com/free-icons/letter-t) - Letter t icons created by Luch Phou - Flaticon

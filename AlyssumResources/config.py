@@ -2,6 +2,7 @@ from enum import Enum
 import os, sys
 from pathlib import Path
 import pytesseract
+from ctranslate2 import get_cuda_device_count
 from PyQt5.QtCore import QLocale
 from PyQt5.QtGui import QKeySequence
 from qfluentwidgets import (qconfig, QConfig, OptionsConfigItem, Theme,
@@ -31,7 +32,7 @@ class ArgosPathManager:
             "XDG_CACHE_HOME": str(Path(ARGOS_PACKAGES_DIR) / "cache"),
             "ARGOS_PACKAGES_DIR": str(Path(ARGOS_PACKAGES_DIR) / "data" / "argos-translate" / "packages"),
             "ARGOS_TRANSLATE_DATA_DIR": str(Path(ARGOS_PACKAGES_DIR) / "data"),
-            "ARGOS_DEVICE_TYPE": "cpu"
+            "ARGOS_DEVICE_TYPE": "cuda" if get_cuda_device_count() != 0 else "cpu"
         })
 
         # Create directories
@@ -63,7 +64,8 @@ class TesseractManager:
 # Initialize Argos paths BEFORE any Argos Translate imports
 ArgosPathManager.initialize()
 
-from argostranslate import argospm
+from argostranslate import argospm, settings
+settings.device='cuda' if get_cuda_device_count() != 0 else "cpu"
 
 TesseractManager.initialize()
 
