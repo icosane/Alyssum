@@ -14,6 +14,7 @@ A simple translator built on Argos Translate and Tesseract.
 1) [Python 3.12](https://www.python.org/downloads/release/python-3129/)
 2) [Git](https://git-scm.com/downloads)
 3) Windows
+4) Somewhat modern NVIDIA GPU (With CUDA 12.6 support)
 
 ### Installation
 
@@ -89,7 +90,7 @@ The folders can be named using either the format **langfrom_langto** or **transl
 You can obtain Tesseract models from either [this link](https://github.com/tesseract-ocr/tessdata_fast) or [this link](https://github.com/tesseract-ocr/tessdata). After downloading, place them in  **AlyssumResources\tesseract\share\tessdata**.
 
 ## GPU Acceleration
-The application will detect and utilize the CUDA device if it is available in the system.
+The application will detect and try to utilize the CUDA device if it is available in the system.
 
 ## Acknowledgments
 - [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)

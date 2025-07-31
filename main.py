@@ -29,16 +29,8 @@ def get_lib_paths():
     cuda_runtime = os.path.join(nvidia_base_libs, "cuda_runtime", "bin")
     cublas = os.path.join(nvidia_base_libs, "cublas", "bin")
     cudnn = os.path.join(nvidia_base_libs, "cudnn", "bin")
-    cuda_cupti = os.path.join(nvidia_base_libs, "cuda_cupti", "bin")
-    cuda_nvrtc = os.path.join(nvidia_base_libs, "cuda_nvrtc", "bin")
-    cufft = os.path.join(nvidia_base_libs, "cufft", "bin")
-    curand = os.path.join(nvidia_base_libs, "curand", "bin")
-    cusolver = os.path.join(nvidia_base_libs, "cusolver", "bin")
-    cusparse = os.path.join(nvidia_base_libs, "cusparse", "bin")
-    nvjitlink = os.path.join(nvidia_base_libs, "nvjitlink", "bin")
-    nvtx = os.path.join(nvidia_base_libs, "nvtx", "bin")
 
-    return [cuda_runtime, cublas, cudnn, cuda_cupti, cuda_nvrtc, cufft, curand, cusolver, cusparse, nvjitlink, nvtx]
+    return [cuda_runtime, cublas, cudnn]
 
 
 if get_cuda_device_count() != 0:
@@ -422,9 +414,6 @@ class ScreenshotTool(QObject):
 
         # 3. Emit to other window
         self.screenshot_taken.emit(pixmap)
-
-        # Optional: You can add more actions here
-        # For example, send to another method in your main application
 
 
 class PlainTextEdit(TextEdit):
