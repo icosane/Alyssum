@@ -147,6 +147,7 @@ class Config(QConfig):
     clcut = KeyCombinationConfigItem("Shortcuts", "Clear windows", "F3")
     copycut = KeyCombinationConfigItem("Shortcuts", "SelectAndCopy", "F5")
     filecut = KeyCombinationConfigItem("Shortcuts", "FileTranslation", "F6")
+    tray = ConfigItem("Settings", "minimizetotray", False, BoolValidator())
 
 
 cfg = Config()

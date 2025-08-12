@@ -1,23 +1,24 @@
 import sys, os
 from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QFileDialog, QSizePolicy
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QFileDialog, QSizePolicy, QSystemTrayIcon, QMenu
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent, QSettings
 sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition, SwitchSettingCard
 from qframelesswindow.utils import getSystemAccentColor
 from AlyssumResources.config import cfg, TranslationPackage, available_packages
 from AlyssumResources.argos_utils import update_package
 from AlyssumResources.translator import TextTranslator
 from AlyssumResources.tesseract import OCR
 from AlyssumResources.file_translator import FileTranslator
+from AlyssumResources.translate_server import TranslateServer
 from ctranslate2 import get_cuda_device_count
 import shutil
 import traceback
 import glob
 from pathlib import Path
-import pyautogui, re
+import pyautogui, re, secrets
 
 def get_lib_paths():
     if getattr(sys, 'frozen', False):  # Running inside PyInstaller
@@ -464,7 +465,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(QCoreApplication.translate("MainWindow", "Alyssum"))
         self.setWindowIcon(QIcon(os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")))
         self.settings = QSettings('icosane', 'Alyssum')
-        self.setMinimumSize(700,850)
+        self.setMinimumSize(800,900)
+        self._local_api_key = self.settings.value("key", type=str)
+        if not self._local_api_key:
+            self._local_api_key = secrets.token_urlsafe(16)
+            self.settings.setValue("key", self._local_api_key)
         self.restore_settings()
         self.last_directory = ""
         self.stacked_widget = QStackedWidget()
@@ -474,6 +479,7 @@ class MainWindow(QMainWindow):
             'settings': {}
         }
 
+        self.server_thread = None
 
         self.scroll_area_main = ScrollArea()
         self.scroll_area_main.setWidgetResizable(True)
@@ -500,6 +506,7 @@ class MainWindow(QMainWindow):
         self.settings_layout()
         self.setup_theme()
         self.center()
+        self.startserver()
 
         self.theme_changed.connect(self.update_theme)
         self.package_changed.connect(lambda: update_package(self))
@@ -514,6 +521,9 @@ class MainWindow(QMainWindow):
         cfg.tlcut.valueChanged.connect(self.update_translation_shortcut)
         cfg.clcut.valueChanged.connect(self.update_clear_shortcut)
         cfg.copycut.valueChanged.connect(self.update_copy_shortcut)
+
+        self.setup_tray_icon()
+        self.installEventFilter(self)
 
     def setup_theme(self):
         setThemeColor(getSystemAccentColor())
@@ -540,6 +550,30 @@ class MainWindow(QMainWindow):
                 }
             """
         QApplication.instance().setStyleSheet(theme_stylesheet)
+
+    def get_tray_menu_stylesheet(self, is_dark_theme):
+        if is_dark_theme:
+            # White text on dark menu background
+            return """
+            QMenu {
+                background-color: #2d2d2d;
+                color: white;
+            }
+            QMenu::item:selected {
+                background-color: #505050;
+            }
+            """
+        else:
+            # Dark text on light menu background
+            return """
+            QMenu {
+                background-color: #f0f0f0;
+                color: black;
+            }
+            QMenu::item:selected {
+                background-color: #d0d0d0;
+            }
+            """
 
     def update_theme(self):
         self.setup_theme()
@@ -728,6 +762,24 @@ class MainWindow(QMainWindow):
         self.card_editshortcuts = ShortcutsCard()
         card_layout.addWidget(self.card_editshortcuts, alignment=Qt.AlignmentFlag.AlignTop)
 
+        self.card_enabletray = SwitchSettingCard(
+            icon=FluentIcon.TRANSPARENT,
+            title="Enable Browser extension",
+            content="Integrates with the web browser and alters the way the app minimizes to the system tray instead of the taskbar.",
+            configItem=cfg.tray
+        )
+        card_layout.addWidget(self.card_enabletray, alignment=Qt.AlignmentFlag.AlignTop)
+        cfg.tray.valueChanged.connect(self.startserver)
+
+        self.card_apikey = PushSettingCard(
+            text="Copy",
+            icon=FluentIcon.COPY,
+            title="API key",
+            content=""
+        )
+        card_layout.addWidget(self.card_apikey, alignment=Qt.AlignmentFlag.AlignTop)
+        self.card_apikey.clicked.connect(self.get_translate_server_key)
+
         self.card_setlanguage = ComboBoxSettingCard(
             configItem=cfg.language,
             icon=FluentIcon.LANGUAGE,
@@ -848,13 +900,88 @@ class MainWindow(QMainWindow):
         super().keyPressEvent(event)
 
 
+    def setup_tray_icon(self):
+        self.tray_icon = QSystemTrayIcon(self)
+        self.tray_icon.setIcon(QIcon(os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")))
+        self.tray_icon.setToolTip("Alyssum")
+
+        # Tray menu
+        self.tray_menu = QMenu(self)
+        self.tray_menu.setStyleSheet(self.get_tray_menu_stylesheet(isDarkTheme()))
+
+        # Show / Restore
+        show_action = self.tray_menu.addAction(QCoreApplication.translate("MainWindow", "Show"))
+        show_action.triggered.connect(self.show_window_from_tray)
+
+        # OCR shortcut
+        ocr_action = self.tray_menu.addAction(QCoreApplication.translate("MainWindow", "Start OCR"))
+        ocr_action.triggered.connect(self.screenshot_start)
+
+        self.lang_menu = {}
+
+        # Language submenu
+        lang_menu = self.tray_menu.addMenu(QCoreApplication.translate("MainWindow", "Language package"))
+        self.populate_language_submenu(lang_menu)
+
+        # Quit
+        quit_action = self.tray_menu.addAction(QCoreApplication.translate("MainWindow", "Quit"))
+        quit_action.triggered.connect(QApplication.instance().quit)
+
+        self.tray_icon.setContextMenu(self.tray_menu)
+        self.tray_icon.activated.connect(self.on_tray_icon_activated)
+        self.tray_icon.setVisible(False)
+
+    def populate_language_submenu(self, menu):
+        menu.clear()
+        self.lang_menu.clear()
+        current_package = cfg.get(cfg.package).value
+
+        for code, name in self.available_languages:
+            act = menu.addAction(name)
+            act.setCheckable(True)
+            act.setChecked(code == current_package)
+            self.lang_menu[code] = act
+
+            def handler(checked=False, c=code):
+                # Uncheck all others
+                for other_code, other_act in self.lang_menu.items():
+                    other_act.setChecked(other_code == c)
+
+                for layout_key, btn_dict in self.lang_buttons.items():
+                    for other_code, btn in btn_dict.items():
+                        btn.setChecked(other_code == c)
+
+                cfg.set(cfg.package, self.translation_mapping[c])
+                self.card_settlpackage.setValue(self.translation_mapping[c])
+
+            act.triggered.connect(handler)
+
+    def on_tray_icon_activated(self, reason):
+        # Respond to left-click or double-click
+        if reason in (QSystemTrayIcon.Trigger, QSystemTrayIcon.DoubleClick):
+            self.show_window_from_tray()
+
+    def show_window_from_tray(self):
+        self.showNormal()
+        self.activateWindow()
+        self.raise_()
+        self.tray_icon.setVisible(False)
+
+    def eventFilter(self, obj, event):
+        if obj is self and event.type() == QEvent.WindowStateChange:
+            if cfg.get(cfg.tray) is True:
+                if self.windowState() & Qt.WindowMinimized:
+                    event.ignore()
+                    self.hide()
+                    self.tray_icon.setVisible(True)
+        return super().eventFilter(obj, event)
 
 
     def check_packages(self):
 
         self.languages = {f"{pkg.from_code}_{pkg.to_code}": f"{pkg}" for pkg in available_packages}
 
-        translation_mapping = {f"{pkg.from_code}_{pkg.to_code}": getattr(TranslationPackage, f"{pkg.from_code.upper()}_TO_{pkg.to_code.upper()}", None) for pkg in available_packages}
+        self.translation_mapping = {f"{pkg.from_code}_{pkg.to_code}": getattr(TranslationPackage, f"{pkg.from_code.upper()}_TO_{pkg.to_code.upper()}", None) for pkg in available_packages}
 
         def update_layout(layout):
             layout_key = 'main' if layout == self.lang_layout_main else 'settings'
@@ -867,7 +994,7 @@ class MainWindow(QMainWindow):
                     widget.deleteLater()
 
             # Find available languages
-            available_languages = []
+            self.available_languages = []
             for language_pair, name in self.languages.items():
                 package_patterns = [
                     os.path.join(
@@ -887,11 +1014,11 @@ class MainWindow(QMainWindow):
                         found = True
                         break
                 if found:
-                    available_languages.append((language_pair, name))
+                    self.available_languages.append((language_pair, name))
 
             # Create buttons for available languages
             current_package = cfg.get(cfg.package).value
-            for code, name in available_languages:
+            for code, name in self.available_languages:
                 lang_button = TransparentTogglePushButton(name)
                 lang_button.setChecked(code == current_package)
                 self.lang_buttons[layout_key][code] = lang_button
@@ -902,18 +1029,17 @@ class MainWindow(QMainWindow):
                         for other_code, other_btn in btns.items():
                             other_btn.setChecked(other_code == c)
 
-                    cfg.set(cfg.package, translation_mapping[c])
-                    self.card_settlpackage.setValue(translation_mapping[c])
+                    cfg.set(cfg.package, self.translation_mapping[c])
+                    self.card_settlpackage.setValue(self.translation_mapping[c])
 
-                #lang_button.clicked.connect(lambda _, c=code: self.card_settlpackage.setValue(translation_mapping[c]))
                 lang_button.clicked.connect(handler)
                 layout.addWidget(lang_button, alignment=Qt.AlignmentFlag.AlignTop)
 
             # Show/hide the widget based on available languages
             if layout == self.lang_layout_main:
-                self.scroll_area_main.setVisible(len(available_languages) > 0)
+                self.scroll_area_main.setVisible(len(self.available_languages) > 0)
             else:
-                self.scroll_area_settings.setVisible(len(available_languages) > 0)
+                self.scroll_area_settings.setVisible(len(self.available_languages) > 0)
 
         update_layout(self.lang_layout_main)
         update_layout(self.lang_layout_settings)
@@ -1005,6 +1131,7 @@ class MainWindow(QMainWindow):
     def save_settings(self):
         self.settings.setValue("size", self.size())
         self.settings.setValue("pos", self.pos())
+        self.settings.setValue("key", self._local_api_key)
 
     def restore_settings(self):
         size = self.settings.value("size")
@@ -1025,6 +1152,17 @@ class MainWindow(QMainWindow):
             duration=2000,
             parent=self
         )
+
+    def startserver(self):
+        if cfg.get(cfg.tray) is True:
+            self.start_translate_server()
+            self.server_thread.requestTranslation.connect(self.request_translation_in_main_thread)
+        else:
+            self.stop_translate_server()
+
+    def request_translation_in_main_thread(self, text):
+        self.textinputw.setPlainText(text)
+        self.start_translation_process()
 
     def wheelEvent(self, event):
         self.scroll_area_main.horizontalScrollBar().setValue(
@@ -1131,6 +1269,29 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def start_ocr_process(self, pixmap):
         self.ocr.start_ocr_process(pixmap)
+
+    def start_translate_server(self):
+        if self.server_thread and self.server_thread.isRunning():
+            return
+        self.server_thread = TranslateServer(self, api_key=self._local_api_key)
+        self.server_thread.start()
+
+    def stop_translate_server(self):
+        if self.server_thread and self.server_thread.isRunning():
+            self.server_thread.stop()
+            self.server_thread.wait()
+
+    def get_translate_server_key(self):
+        """Expose API key so you can display it in Settings UI."""
+        if self.server_thread:
+            api_key = self.server_thread.get_api_key()
+        else:
+            api_key = self._local_api_key
+
+        clipboard = app.clipboard()
+        clipboard.setText(api_key)
+
+        return api_key
 
     def on_translation_done(self, result, success):
         if success:

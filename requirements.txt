@@ -10,6 +10,9 @@ pyinstaller==6.14.2
 nvidia-cuda-runtime-cu12==12.6.77
 nvidia-cudnn-cu12==9.5.1.17
 nvidia-cublas-cu12==12.6.4.1
+Flask==3.1.1
+jsonify==0.5
+waitress==3.0.2
 git+https://github.com/JSchmie/argos-translate-files.git
 --extra-index-url https://download.pytorch.org/whl/cu126
 torch==2.7.1

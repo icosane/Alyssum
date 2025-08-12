@@ -6,6 +6,7 @@ A simple translator built on Argos Translate and Tesseract.
 - **OCR support**: Integrated Google Tesseract engine
 - **Configurable shortcuts**: By default, you can use the following keys for various functions: **F1** to launch OCR, **F2** to translate, **F3** to clear windows, **F5** to copy the translation to the clipboard, and **F6** to translate files. All of these shortcuts can be remapped in the settings. (Note that shortcuts are disabled by default; you can enable them in the settings.)
 - **File Translation**: You can translate the following file formats: **.txt**, **.odt**, **.odp**, **.docx**, **.pptx**, **.epub**, **.html**, **.srt**, and **.pdf**.
+- **WebExtension**: Seamlessly translate any selectable text in your browser, eliminating the need for manual copying and switching to the app.
 
 ## Getting Started
 
@@ -92,6 +93,19 @@ You can obtain Tesseract models from either [this link](https://github.com/tesse
 ## GPU Acceleration
 The application will detect and try to utilize the CUDA device if it is available in the system.
 
+## Browser Extension
+### Chrome
+
+Either enable Developer mode in extension and load as unpacked the ```alyssum-ext``` folder, or in ```chrome:flags``` set ```extension-mime-request-handling``` to ```Always promt for install``` and drag and drop the ```chrome.crx``` to the Chrome window.
+
+### Firefox
+
+1. Go to ```about:config```
+2. Search for ```xpinstall.signatures.required```
+3. Either double click on the row OR set the value to false and close
+4. Go to Add-ons manager, click the settings button and select ```Install add-on from file```
+5. Select ```firefox.xpi```
+
 ## Acknowledgments
 - [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
 - [Argos Translate](https://github.com/argosopentech/argos-translate)
@@ -104,6 +118,9 @@ The application will detect and try to utilize the CUDA device if it is availabl
 - [pillow](https://github.com/python-pillow/Pillow)
 - [cuda runtime libraries](https://pypi.org/user/nvidia/)
 - [PyInstaller](https://pyinstaller.org/)
+- [waitress](https://pypi.org/project/waitress/)
+- [jsonify](https://pypi.org/project/jsonify/)
+- [Flask](https://pypi.org/project/Flask/)
 - [Tesseract portable](https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/826079-portable-tesseract)
 - [Letter t icons](https://www.flaticon.com/free-icons/letter-t) - Letter t icons created by Luch Phou - Flaticon
 - [Sl-Alex for ShortcutEdit](https://sl-alex.net/gui/2022/08/21/shortcutedit_capturing_shortcuts_in_pyqt/)
