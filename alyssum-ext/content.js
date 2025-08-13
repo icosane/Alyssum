@@ -1,5 +1,34 @@
 let iconBtn = null;
 let tooltip = null;
+let settings = {
+  apiKey: "",
+  serverPort: "8765",
+  fontSize: 14,
+  bgColor: "#000000",
+  iconColor: "#9332a3",
+  autoTranslate: false,
+  iconDelay: 0
+};
+
+let iconShowTimer = null;
+
+async function loadSettings() {
+  const data = await chrome.storage.local.get([
+    "apiKey", "serverPort", "fontSize", "bgColor", "iconColor", "autoTranslate", "iconDelay"
+  ]);
+  settings = { ...settings, ...data };
+  applyStyleSettings();
+}
+
+function applyStyleSettings() {
+  if (tooltip) {
+    tooltip.style.fontSize = settings.fontSize + "px";
+    tooltip.style.background = settings.bgColor;
+  }
+  if (iconBtn) {
+    iconBtn.style.background = settings.iconColor;
+  }
+}
 
 function makeIcon() {
   iconBtn = document.createElement("button");
@@ -44,16 +73,17 @@ async function onIconClick(e) {
   e.stopPropagation();
   const info = getSelectionInfo();
   if (!info) return;
+  translateAndShow(info);
+}
 
-  // Load settings
-  const { apiKey, serverPort } = await chrome.storage.local.get(["apiKey", "serverPort"]);
-  if (!apiKey) {
+async function translateAndShow(info) {
+  if (!settings.apiKey) {
     showTooltip(info.rect, "API key not set. Please set it in extension options.");
     return;
   }
 
   const payload = { text: info.text, timeout: 8.0 };
-  const url = `http://127.0.0.1:${serverPort || 8765}/translate`;
+  const url = `http://127.0.0.1:${settings.serverPort || 8765}/translate`;
 
   try {
     iconBtn.disabled = true;
@@ -61,7 +91,7 @@ async function onIconClick(e) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": apiKey
+        "X-API-Key": settings.apiKey
       },
       body: JSON.stringify(payload),
       cache: "no-store"
@@ -76,7 +106,6 @@ async function onIconClick(e) {
     const data = await resp.json();
     const translated = data.translated || "";
 
-    // Copy to clipboard
     try {
       await navigator.clipboard.writeText(translated);
     } catch (err) {
@@ -94,6 +123,8 @@ async function onIconClick(e) {
 
 function showTooltip(rect, text) {
   tooltip.innerText = text;
+  tooltip.style.fontSize = settings.fontSize + "px";
+  tooltip.style.background = settings.bgColor;
   const top = window.scrollY + rect.top - tooltip.offsetHeight - 10;
   const left = window.scrollX + rect.left;
   tooltip.style.top = `${top}px`;
@@ -102,12 +133,19 @@ function showTooltip(rect, text) {
 }
 
 function selectionChangedHandler() {
+  clearTimeout(iconShowTimer);
   const info = getSelectionInfo();
   if (!info) {
     hideIcon();
     return;
   }
-  showIconAt(info.rect);
+  if (settings.autoTranslate) {
+    translateAndShow(info);
+  } else {
+    iconShowTimer = setTimeout(() => {
+      showIconAt(info.rect);
+    }, (settings.iconDelay || 0) * 1000);
+  }
 }
 
 document.addEventListener("selectionchange", () => {
@@ -126,3 +164,5 @@ document.addEventListener("mousedown", (e) => {
 
 makeIcon();
 makeTooltip();
+loadSettings();
+chrome.storage.onChanged.addListener(loadSettings);
