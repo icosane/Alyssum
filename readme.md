@@ -1,4 +1,4 @@
-A simple translator built on Argos Translate and Tesseract.
+An offline translator built on Argos Translate and Tesseract.
 
 ## Features
 
