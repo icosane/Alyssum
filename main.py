@@ -2,7 +2,7 @@ import sys, os
 from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QFileDialog, QSizePolicy, QSystemTrayIcon, QMenu
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent, QSettings
-sys.stdout = open(os.devnull, 'w')
+#sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
 from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition, SwitchSettingCard
@@ -609,6 +609,8 @@ class MainWindow(QMainWindow):
 
     def on_lang_change(self):
         self.ocr.set_package(cfg.package)
+        if hasattr(self, "lang_menu_widget"):
+            self.populate_language_submenu(self.lang_menu_widget)
 
     def clean_text(self, text):
         paragraphs = text.split('\n\n')
@@ -764,17 +766,17 @@ class MainWindow(QMainWindow):
 
         self.card_enabletray = SwitchSettingCard(
             icon=FluentIcon.TRANSPARENT,
-            title="Enable Browser extension",
-            content="Integrates with the web browser and alters the way the app minimizes to the system tray instead of the taskbar.",
+            title=QCoreApplication.translate("MainWindow","Enable Browser extension"),
+            content=QCoreApplication.translate("MainWindow","Integrates with the web browser and alters the way the app minimizes to the system tray instead of the taskbar."),
             configItem=cfg.tray
         )
         card_layout.addWidget(self.card_enabletray, alignment=Qt.AlignmentFlag.AlignTop)
         cfg.tray.valueChanged.connect(self.startserver)
 
         self.card_apikey = PushSettingCard(
-            text="Copy",
+            text=QCoreApplication.translate("MainWindow","Copy"),
             icon=FluentIcon.COPY,
-            title="API key",
+            title=QCoreApplication.translate("MainWindow","API key"),
             content=""
         )
         card_layout.addWidget(self.card_apikey, alignment=Qt.AlignmentFlag.AlignTop)
@@ -917,11 +919,11 @@ class MainWindow(QMainWindow):
         ocr_action = self.tray_menu.addAction(QCoreApplication.translate("MainWindow", "Start OCR"))
         ocr_action.triggered.connect(self.screenshot_start)
 
-        self.lang_menu = {}
+        # Store both the menu and the dict of actions
+        self.lang_menu_widget = self.tray_menu.addMenu(QCoreApplication.translate("MainWindow", "Language package"))
+        self.lang_menu_actions = {}
 
-        # Language submenu
-        lang_menu = self.tray_menu.addMenu(QCoreApplication.translate("MainWindow", "Language package"))
-        self.populate_language_submenu(lang_menu)
+        self.populate_language_submenu(self.lang_menu_widget)
 
         # Quit
         quit_action = self.tray_menu.addAction(QCoreApplication.translate("MainWindow", "Quit"))
@@ -931,20 +933,22 @@ class MainWindow(QMainWindow):
         self.tray_icon.activated.connect(self.on_tray_icon_activated)
         self.tray_icon.setVisible(False)
 
-    def populate_language_submenu(self, menu):
+
+    def populate_language_submenu(self, menu: QMenu):
         menu.clear()
-        self.lang_menu.clear()
+        self.lang_menu_actions.clear()
+
         current_package = cfg.get(cfg.package).value
 
         for code, name in self.available_languages:
             act = menu.addAction(name)
             act.setCheckable(True)
             act.setChecked(code == current_package)
-            self.lang_menu[code] = act
+            self.lang_menu_actions[code] = act
 
             def handler(checked=False, c=code):
                 # Uncheck all others
-                for other_code, other_act in self.lang_menu.items():
+                for other_code, other_act in self.lang_menu_actions.items():
                     other_act.setChecked(other_code == c)
 
                 for layout_key, btn_dict in self.lang_buttons.items():
@@ -1377,6 +1381,6 @@ if __name__ == "__main__":
 
     window = MainWindow()
     window.show()
-    sys.excepthook = ErrorHandler()
-    sys.stderr = ErrorHandler()
+    #sys.excepthook = ErrorHandler()
+    #sys.stderr = ErrorHandler()
     sys.exit(app.exec())

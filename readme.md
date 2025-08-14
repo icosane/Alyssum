@@ -1,21 +1,46 @@
-An offline translator built on Argos Translate and Tesseract.
+An offline translator built on **Argos Translate** and **Tesseract OCR**.
+
+> **Alyssum** is an offline translator that combines the power of [Argos Translate](https://github.com/argosopentech/argos-translate) with [Tesseract OCR](https://github.com/tesseract-ocr/tesseract).  
+> Translate text, documents, and even on-screen content — all without an internet connection.  
+> Privacy-friendly and designed for quick everyday use.
 
 ## Features
 
-- **Languages**: Similar to those supported by Argos Translate
-- **OCR support**: Integrated Google Tesseract engine
-- **Configurable shortcuts**: By default, you can use the following keys for various functions: **F1** to launch OCR, **F2** to translate, **F3** to clear windows, **F5** to copy the translation to the clipboard, and **F6** to translate files. All of these shortcuts can be remapped in the settings. (Note that shortcuts are disabled by default; you can enable them in the settings.)
-- **File Translation**: You can translate the following file formats: **.txt**, **.odt**, **.odp**, **.docx**, **.pptx**, **.epub**, **.html**, **.srt**, and **.pdf**.
-- **WebExtension**: Seamlessly translate any selectable text in your browser, eliminating the need for manual copying and switching to the app.
+- **Languages** – Supports all languages available in Argos Translate.
+- **OCR Support** – Integrated Google Tesseract engine.
+- **Configurable Shortcuts** –  
+  Default keys:  
+  - **F1** – Launch OCR  
+  - **F2** – Translate  
+  - **F3** – Clear windows  
+  - **F5** – Copy translation to clipboard  
+  - **F6** – Translate files  
+  All shortcuts can be remapped in Settings.  
+  > **Note:** Shortcuts are disabled by default; enable them in Settings.
+- **File Translation** – Supports: `.txt`, `.odt`, `.odp`, `.docx`, `.pptx`, `.epub`, `.html`, `.srt`, `.pdf`.
+- **WebExtension** – Translate any selectable text in your browser without manual copying.
+
+## Contents
+
+- [Getting Started](#getting-started)
+- [Building .EXE](#building-exe)
+- [Translation Packages](#translation-packages)
+- [Tesseract Models](#tesseract-models)
+- [GPU Acceleration](#gpu-acceleration)
+- [Browser Extension](#browser-extension)
+- [Acknowledgments](#acknowledgments)
+- [Screenshots](#screenshots)
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-1) [Python 3.12](https://www.python.org/downloads/release/python-3129/)
-2) [Git](https://git-scm.com/downloads)
-3) Windows
-4) Somewhat modern NVIDIA GPU (With CUDA 12.6 support)
+1. [Python 3.12](https://www.python.org/downloads/release/python-3129/)
+2. [Git](https://git-scm.com/downloads)
+3. Windows
+4. NVIDIA GPU with CUDA 12.6 support *(optional, for GPU acceleration)*
 
 ### Installation
 
@@ -23,48 +48,68 @@ An offline translator built on Argos Translate and Tesseract.
    ```bash
    git clone https://github.com/icosane/Alyssum.git
    ```
-
 2. Navigate to the folder and create a virtual environment:
-    ```bash
-    python -m venv .
-    ```
+   ```bash
+   python -m venv .
+   ```
 3. Activate the virtual environment:
-    ```
-    .\\Scripts\\activate
-    ```
-4. Install the requirements from the file: 
-    ```
-    pip install -r requirements.txt
-    ```
+   ```bash
+   .\Scripts\activate
+   ```
+4. Install requirements:
+   ```bash
+   pip install -r requirements.txt
+   ```
+5. Download [Tesseract Portable](https://u.pcloud.link/publink/show?code=XZHY53VZxzxv8qvcTUJ4fzLHJhwvbh7ee1Nk) or [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) and place it into:
+   ```
+   ./AlyssumResources/tesseract
+   ```
+   Recommended structure:
+   ```
+   tesseract/
+   ├── bin/
+   ├── include/
+   ├── lib/
+   └── share/
+       ├── man/
+       └── tessdata/
+   ```
+   If needed, adjust the `TesseractManager` search paths in `config.py`.
 
-5. Download [Tesseract Portable](https://u.pcloud.link/publink/show?code=XZHY53VZxzxv8qvcTUJ4fzLHJhwvbh7ee1Nk) or [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) and place it into ```./AlyssumResources/tesseract```   
-I prefer the first option, which has the following file structure:
-    ```
-    tesseract/
-    ├── bin/
-    ├── include/
-    ├── lib/
-    └── share/
-        ├── man/
-        └── tessdata/
-    ```
-    You may need to modify the ```TesseractManager``` class in ```config.py``` to update the directories it searches.
+   **Tip:** You can also open the folder in [Visual Studio Code](https://code.visualstudio.com/download) or [VSCodium](https://github.com/VSCodium/vscodium/releases), install the Python extension, then press `Ctrl+Shift+P` → **Python: Create Environment** → `.venv` → select `requirements.txt`.
 
-You can also open the extracted folder in [Visual Studio Code](https://code.visualstudio.com/download) / [VSCodium](https://github.com/VSCodium/vscodium/releases), install Python extension, then press ```Ctrl+Shift+P```, type ```Python: Create Environment```, select ```.venv```, use ```requirements.txt``` and wait for the process to complete.
+6. Enable UTF-8 support in Windows *(recommended for files with non-Latin characters)*:  
+   - **Settings** → **Time & language** → **Language & region** → **Administrative language settings** → **Change system locale**  
+   - Check **Beta: Use Unicode UTF-8 for worldwide language support**  
+   - Reboot for changes to apply.
 
-6. Enable UTF-8 support in Windows (for translating files with non-Latin characters): 
-
-    Go to Windows Settings > Time & language > Language & region > Administrative language settings > Change system locale, and check Beta: Use Unicode UTF-8 for worldwide language support. Then reboot the PC for the change to take effect.
+---
 
 ## Building .EXE
-1. Install PyInstaller in your .venv:
-```pip install pyinstaller```
-2. Run ```pyinstaller build.spec```
 
-## Translation packages
-You can download Argos Translate packages from the package selection menu located on the Settings page. Alternatively, you can download them [here](https://www.argosopentech.com/argospm/index/), extract the folder, and place them into
+1. Install PyInstaller:
+   ```bash
+   pip install pyinstaller
+   ```
+2. Run:
+   ```bash
+   pyinstaller build.spec
+   ```
 
->AlyssumResources\models\argostranslate\data\argos-translate\packages
+*(The `build.spec` file is included in the repository.)*
+
+---
+
+## Translation Packages
+
+Download Argos Translate packages via the Settings page, or manually from [here](https://www.argosopentech.com/argospm/index/).
+
+For manual install extract the folder into:
+```
+AlyssumResources/models/argostranslate/data/argos-translate/packages
+```
+
+Example structure:
 ```
 AlyssumResources
 └── models
@@ -75,42 +120,70 @@ AlyssumResources
                     ├── translate-en_fr-1.9
                     │   ├── model
                     │   ├── stanza
-                    │   ├── metadata.json         
-                    │   ├── README.md                 
+                    │   ├── metadata.json
+                    │   ├── README.md
                     │   └── config.json
                     └── en_de
                         ├── model
                         ├── stanza
-                        ├── metadata.json  
-                        ├── README.md 
+                        ├── metadata.json
+                        ├── README.md
                         └── config.json
 ```
-The folders can be named using either the format **langfrom_langto** or **translate-langfrom_langto-version**.
+Folder naming: `langfrom_langto` or `translate-langfrom_langto-version`.
 
-## Tesseract models
-You can obtain Tesseract models from either [this link](https://github.com/tesseract-ocr/tessdata_fast) or [this link](https://github.com/tesseract-ocr/tessdata). After downloading, place them in  **AlyssumResources\tesseract\share\tessdata**.
+---
+
+## Tesseract Models
+
+Get models from:
+- [tessdata_fast (faster, slightly less accurate)](https://github.com/tesseract-ocr/tessdata_fast)
+- [tessdata (more accurate, slower)](https://github.com/tesseract-ocr/tessdata)
+
+Place them into:
+```
+AlyssumResources/tesseract/share/tessdata
+```
+
+---
 
 ## GPU Acceleration
-The application will detect and try to utilize the CUDA device if it is available in the system.
+
+If CUDA is available, the app will automatically detect and use it for faster translation.
+
+---
 
 ## Browser Extension
-### Chrome
 
-Either enable Developer mode in extension and load as unpacked the ```alyssum-ext``` folder, or in ```chrome:flags``` set ```extension-mime-request-handling``` to ```Always promt for install``` and drag and drop the ```chrome.crx``` to the Chrome window.
+### Chrome
+1. Enable **Developer mode** in Extensions and load the `alyssum-ext` folder as **Unpacked**,  
+   **OR**  
+   Set `chrome://flags/#extension-mime-request-handling` to **Always prompt for install**,  
+   then drag `chrome.crx` into Chrome.
 
 ### Firefox
+1. Go to `about:config`
+2. Search for `xpinstall.signatures.required`
+3. Set to `false`
+4. Open **Add-ons Manager**, click the settings button → **Install Add-on from File**
+5. Select `firefox.xpi`
 
-1. Go to ```about:config```
-2. Search for ```xpinstall.signatures.required```
-3. Either double click on the row OR set the value to false and close
-4. Go to Add-ons manager, click the settings button and select ```Install add-on from file```
-5. Select ```firefox.xpi```
+After that, go to the app settings, copy the API key, and paste it into the extension settings.
+> **Note:** The API key only needs to be set once.
+
+---
 
 ## Acknowledgments
-- [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
+
+### Core Libraries
 - [Argos Translate](https://github.com/argosopentech/argos-translate)
 - [Tesseract OCR Engine](https://github.com/tesseract-ocr/tesseract)
+- [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
 - [PyQt5](https://pypi.org/project/PyQt5/)
+- [Flask](https://pypi.org/project/Flask/)
+- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files)
+
+### Supporting Libraries & Tools
 - [langdetect](https://github.com/Mimino666/langdetect)
 - [pytesseract](https://github.com/madmaze/pytesseract)
 - [opencv-python](https://github.com/opencv/opencv-python)
@@ -120,20 +193,22 @@ Either enable Developer mode in extension and load as unpacked the ```alyssum-ex
 - [PyInstaller](https://pyinstaller.org/)
 - [waitress](https://pypi.org/project/waitress/)
 - [jsonify](https://pypi.org/project/jsonify/)
-- [Flask](https://pypi.org/project/Flask/)
+
+### Resources & References
 - [Tesseract portable](https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/826079-portable-tesseract)
-- [Letter t icons](https://www.flaticon.com/free-icons/letter-t) - Letter t icons created by Luch Phou - Flaticon
+- [Letter T icons](https://www.flaticon.com/free-icons/letter-t) by Luch Phou – Flaticon
 - [Sl-Alex for ShortcutEdit](https://sl-alex.net/gui/2022/08/21/shortcutedit_capturing_shortcuts_in_pyqt/)
-- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files)
 - [JSchmie for PDF support in argos-translate-files](https://github.com/LibreTranslate/argos-translate-files/pull/13)
 
-## Screenshots
-<div style="display: flex; flex-direction: column;">
-    <p><center>Main Window</center></p>
-    <img src="./assets/1.png" alt="ui" style="margin-right: 10px;" />
-    <p><center>Settings</center></p>
-    <img src="./assets/2.png" alt="ui" style="margin-right: 10px;"/>
-    <p><center>OCR in action</center></p>
-    <img src="./assets/3.gif" alt="ui" style="margin-right: 10px;"/>
-</div>
+---
 
+## Screenshots
+
+**Main Window**  
+![Main Window](./assets/1.png)  
+
+**Settings**  
+![Settings](./assets/2.png)  
+
+**OCR in action**  
+![OCR in action](./assets/3.gif)

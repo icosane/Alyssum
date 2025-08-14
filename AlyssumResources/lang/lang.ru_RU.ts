@@ -293,5 +293,25 @@
         <source>Translated file saved to {}</source>
         <translation>Переведенный файл сохранен в {}</translation>
     </message>
+    <message>
+        <location filename="main.py" line="765"/>
+        <source>Enable Browser extension</source>
+        <translation>Включить расширение для браузера</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="765"/>
+        <source>Integrates with the web browser and alters the way the app minimizes to the system tray instead of the taskbar.</source>
+        <translation>Интегрируется с веб-браузером и изменяет способ сворачивания приложения в трей, а не на панель задач.</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="774"/>
+        <source>Copy</source>
+        <translation>Копировать</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="774"/>
+        <source>API key</source>
+        <translation>Ключ API</translation>
+    </message>
 </context>
 </TS>

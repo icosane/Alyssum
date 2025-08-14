@@ -8,7 +8,7 @@ data += collect_dynamic_libs('cv2')
 data += collect_dynamic_libs('PyQt5')
 
 a = Analysis(
-    ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py', './AlyssumResources/tesseract.py'],
+    ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py', './AlyssumResources/tesseract.py', './AlyssumResources/translate_server.py'],
     pathex=[],
     binaries=data,
     datas=[('AlyssumResources','AlyssumResources')],
