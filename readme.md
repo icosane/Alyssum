@@ -179,9 +179,9 @@ After that, go to the app settings, copy the API key, and paste it into the exte
 - [Argos Translate](https://github.com/argosopentech/argos-translate)
 - [Tesseract OCR Engine](https://github.com/tesseract-ocr/tesseract)
 - [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
+- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files)
 - [PyQt5](https://pypi.org/project/PyQt5/)
 - [Flask](https://pypi.org/project/Flask/)
-- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files)
 
 ### Supporting Libraries & Tools
 - [langdetect](https://github.com/Mimino666/langdetect)
@@ -198,8 +198,6 @@ After that, go to the app settings, copy the API key, and paste it into the exte
 - [Tesseract portable](https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/826079-portable-tesseract)
 - [Letter T icons](https://www.flaticon.com/free-icons/letter-t) by Luch Phou – Flaticon
 - [Sl-Alex for ShortcutEdit](https://sl-alex.net/gui/2022/08/21/shortcutedit_capturing_shortcuts_in_pyqt/)
-- [JSchmie for PDF support in argos-translate-files](https://github.com/LibreTranslate/argos-translate-files/pull/13)
-
 ---
 
 ## Screenshots
