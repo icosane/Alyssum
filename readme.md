@@ -28,6 +28,7 @@ An offline translator built on **Argos Translate** and **Tesseract OCR**.
 - [Tesseract Models](#tesseract-models)
 - [GPU Acceleration](#gpu-acceleration)
 - [Browser Extension](#browser-extension)
+- [Registry entries (Windows)](#registry-entries-windows)
 - [Acknowledgments](#acknowledgments)
 - [Screenshots](#screenshots)
 
@@ -161,6 +162,11 @@ If CUDA is available, the app will automatically detect and use it for faster tr
    Set `chrome://flags/#extension-mime-request-handling` to **Always prompt for install**,  
    then drag `chrome.crx` into Chrome.
 
+   **OR**  
+   Go to your extensions page in Google Chrome. You can find it in the Tools -> Extensions menu or by using the following URL:`chrome://extensions`. Drag and drop `chrome.crx` into  this window to install it.
+
+   > **Note:** Chrome may prevent you from running the installed extension because it was not obtained from the Chrome Web Store. In this situation, please use the **first** method (**load as unpacked**)
+
 ### Firefox
 1. Go to `about:config`
 2. Search for `xpinstall.signatures.required`
@@ -168,9 +174,16 @@ If CUDA is available, the app will automatically detect and use it for faster tr
 4. Open **Add-ons Manager**, click the settings button → **Install Add-on from File**
 5. Select `firefox.xpi`
 
-After that, go to the app settings, copy the API key, and paste it into the extension settings.
+After installation, go to the app settings, copy the API key, and paste it into the extension settings.
 > **Note:** The API key only needs to be set once.
 
+---
+
+## Registry entries (Windows)
+The application saves the window size, position, and API key in the system registry. To clear these settings, simply delete the following registry key:
+```
+HKEY_CURRENT_USER\Software\icosane\Alyssum
+```
 ---
 
 ## Acknowledgments
