@@ -1,7 +1,7 @@
 An offline translator built on **Argos Translate** and **Tesseract OCR**.
 
 > **Alyssum** is an offline translator that combines the power of [Argos Translate](https://github.com/argosopentech/argos-translate) with [Tesseract OCR](https://github.com/tesseract-ocr/tesseract).  
-> Translate text, documents, and even on-screen content — all without an internet connection.  
+> Translate text, documents, books, and even on-screen content — all without an internet connection.  
 > Privacy-friendly and designed for quick everyday use.
 
 ## Features
