@@ -2,7 +2,7 @@ import sys, os
 from PyQt5.QtGui import QColor, QIcon, QFont, QPixmap, QPainter, QPen, QImage, QKeySequence
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QFileDialog, QSizePolicy, QSystemTrayIcon, QMenu
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot, QRect, QTimer, QObject, QEvent, QSettings
-#sys.stdout = open(os.devnull, 'w')
+sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
 from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition, SwitchSettingCard
@@ -972,13 +972,13 @@ class MainWindow(QMainWindow):
         self.tray_icon.setVisible(False)
 
     def eventFilter(self, obj, event):
-        if obj is self and event.type() == QEvent.WindowStateChange:
+        if obj is self and event.type() == QEvent.Close:
             if cfg.get(cfg.tray) is True:
-                if self.windowState() & Qt.WindowMinimized:
-                    event.ignore()
-                    self.hide()
-                    self.tray_icon.setVisible(True)
+                event.ignore()
+                self.hide()
+                self.tray_icon.setVisible(True)
         return super().eventFilter(obj, event)
+
 
 
     def check_packages(self):
@@ -1125,12 +1125,17 @@ class MainWindow(QMainWindow):
             )
 
     def closeEvent(self, event):
-        for widget in QApplication.topLevelWidgets():
-            widget.close()
+        if cfg.get(cfg.tray) is True:
+            event.ignore()
+            self.hide()
+            self.tray_icon.setVisible(True)
+        else:
+            for widget in QApplication.topLevelWidgets():
+                widget.close()
 
-        self.save_settings()
+            self.save_settings()
 
-        super().closeEvent(event)
+            super().closeEvent(event)
 
     def save_settings(self):
         self.settings.setValue("size", self.size())
@@ -1381,6 +1386,6 @@ if __name__ == "__main__":
 
     window = MainWindow()
     window.show()
-    #sys.excepthook = ErrorHandler()
-    #sys.stderr = ErrorHandler()
+    sys.excepthook = ErrorHandler()
+    sys.stderr = ErrorHandler()
     sys.exit(app.exec())
