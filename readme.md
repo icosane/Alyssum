@@ -6,7 +6,7 @@ An offline translator built on **Argos Translate** and **Tesseract OCR**.
 
 ## Features
 
-- **Languages** – Supports all languages available in Argos Translate.
+- **Languages** – Supports all [languages available](https://github.com/argosopentech/argos-translate?tab=readme-ov-file#supported-languages) in Argos Translate.
 - **OCR Support** – Integrated Google Tesseract engine.
 - **Configurable Shortcuts** –  
   Default keys:  
