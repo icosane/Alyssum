@@ -196,40 +196,39 @@ HKEY_CURRENT_USER\Software\icosane\Alyssum
 
 ## Acknowledgments, Licenses and Third-Party Software
 
-This project uses the following open-source libraries:
+This project uses the following libraries and components, which may be licensed under open-source or proprietary terms.  
+Full license texts for each component are included in the [licenses/](./licenses) directory.
 
 ### Core Libraries
 - [Argos Translate](https://github.com/argosopentech/argos-translate) - Machine translation library, licensed under the [MIT License](./licenses/argos-translate-LICENSE.txt)
 - [Tesseract OCR Engine](https://github.com/tesseract-ocr/tesseract) - an OCR engine, licensed under the [Apache License 2.0](./licenses/tesseract-LICENSE.txt)
 - [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets) - a fluent design widgets library, licensed under the [GNU General Public License v3.0](./licenses/PyQt-Fluent-Widgets-LICENSE.txt) 
-- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files) - a library for translating files using Argos Translate, licensed under the [GNU Affero General Public License v3.0](./licenses/argos-translate-files-LICENSE.txt) 
-- [PyQt5](https://pypi.org/project/PyQt5/) - a comprehensive set of Python bindings for Qt v5, licensed under the [GNU General Public License v3.0](./licenses/PyQt-LICENSE.txt) 
-- [Flask](https://pypi.org/project/Flask/) - the Python micro framework for building web applications,  licensed under the [BSD 3-Clause License](./licenses/flask-LICENSE.txt) 
+- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files) - File translation via Argos Translate, licensed under the [GNU Affero General Public License v3.0](./licenses/argos-translate-files-LICENSE.txt) 
+- [PyQt5](https://pypi.org/project/PyQt5/) - Python bindings for Qt v5, licensed under the [GNU General Public License v3.0](./licenses/PyQt-LICENSE.txt) 
+- [Flask](https://pypi.org/project/Flask/) - Micro web framework,  licensed under the [BSD 3-Clause License](./licenses/flask-LICENSE.txt) 
 
 ### Supporting Libraries & Tools
-- [langdetect](https://github.com/Mimino666/langdetect) - port of Google's language-detection library to Python, licensed under the [Apache License 2.0](./licenses/langdetect-LICENSE.txt)
+- [langdetect](https://github.com/Mimino666/langdetect) - Language detection, licensed under the [Apache License 2.0](./licenses/langdetect-LICENSE.txt)
 - [pytesseract](https://github.com/madmaze/pytesseract) - a Python wrapper for Google Tesseract, licensed under the [Apache License 2.0](./licenses/pytesseract-LICENSE.txt) 
 - [opencv-python](https://github.com/opencv/opencv-python) - a library for computer vision and image processing, licensed under the [MIT License](./licenses/opencv-python-LICENSE.txt)
-- [pyautogui](https://github.com/asweigart/pyautogui) - a cross-platform GUI automation Python module, licensed under the [BSD 3-Clause License](./licenses/pyautogui-LICENSE.txt)
-- [pillow](https://github.com/python-pillow/Pillow) - a Python Imaging Library, licensed under the [MIT-CMU License](./licenses/pillow-LICENSE.txt) 
-- [nvidia-cuda-runtime](https://pypi.org/project/nvidia-cuda-runtime-cu12/), licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
-- [nvidia-cudnn](https://pypi.org/project/nvidia-cudnn-cu12/), licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
-- [nvidia-cublas](https://pypi.org/project/nvidia-cublas-cu12/), licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
+- [pyautogui](https://github.com/asweigart/pyautogui) - GUI automation, licensed under the [BSD 3-Clause License](./licenses/pyautogui-LICENSE.txt)
+- [pillow](https://github.com/python-pillow/Pillow) - Python Imaging Library, licensed under the [MIT-CMU License](./licenses/pillow-LICENSE.txt) 
+- [nvidia-cuda-runtime](https://pypi.org/project/nvidia-cuda-runtime-cu12/) - GPU runtime, licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
+- [nvidia-cudnn](https://pypi.org/project/nvidia-cudnn-cu12/) - Deep learning acceleration, licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
+- [nvidia-cublas](https://pypi.org/project/nvidia-cublas-cu12/) - GPU BLAS library, licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
 - [PyInstaller](https://pyinstaller.org/) - bundles a Python application and all its dependencies into a single package. Licensed under the [GPL 2.0 License and the Apache License 2.0](./licenses/pyinstaller-COPYING.txt) 
-- [waitress](https://pypi.org/project/waitress/) - a WSGI server for Python 3, licensed under the [Zope Public License (ZPL) 2.1](./licenses/waitress-LICENSE.txt)   
-- [jsonify](https://pypi.org/project/jsonify/) - a csv to json converter, licensed under the [MIT License](./licenses/jsonify-LICENSE.txt)
-- [pytorch](https://github.com/pytorch/pytorch) - Tensors and Dynamic neural networks in Python with strong GPU acceleration, licensed under the [pytorch License](./licenses/pytorch-LICENSE.txt)
+- [waitress](https://pypi.org/project/waitress/) - WSGI server, licensed under the [Zope Public License (ZPL) 2.1](./licenses/waitress-LICENSE.txt)   
+- [jsonify](https://pypi.org/project/jsonify/) - CSV-to-JSON converter, licensed under the [MIT License](./licenses/jsonify-LICENSE.txt)
+- [pytorch](https://github.com/pytorch/pytorch) - Deep learning framework, licensed under the [pytorch License](./licenses/pytorch-LICENSE.txt)
 
 ### Resources & References
 - [Tesseract portable](https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/826079-portable-tesseract)
 - [Letter T icons](https://www.flaticon.com/free-icons/letter-t) by Luch Phou – Flaticon
 - [Sl-Alex for ShortcutEdit](https://sl-alex.net/gui/2022/08/21/shortcutedit_capturing_shortcuts_in_pyqt/)
 
-See the licenses/ folder for full license texts.
-
 **This software contains source code provided by NVIDIA Corporation.**
 
-> **NOTE**: This software depends on packages that may be licensed under different open source licenses.
+> **NOTE**: This software depends on packages that may be licensed under different open-source or proprietary licenses.
 ---
 
 ## Screenshots
