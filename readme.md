@@ -37,7 +37,7 @@ licenses. Their license texts are provided in the [licenses/](./licenses) direct
 - [GPU Acceleration](#gpu-acceleration)
 - [Browser Extension](#browser-extension)
 - [Registry entries (Windows)](#registry-entries-windows)
-- [Acknowledgments](#acknowledgments)
+- [Acknowledgments, Licenses and Third-Party Software](#acknowledgments-licenses-and-third-party-software)
 - [Screenshots](#screenshots)
 
 ---
