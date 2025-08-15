@@ -4,6 +4,14 @@ An offline translator built on **Argos Translate** and **Tesseract OCR**.
 > Translate text, documents, books, and even on-screen content — all without an internet connection.  
 > Privacy-friendly and designed for quick everyday use.
 
+## License
+
+**Alyssum** is licensed under the [GNU Affero General Public License v3.0](./LICENSE).  
+You are free to use, modify, and distribute it under the terms of the AGPL-3.0-or-later.
+
+This software also contains third-party components released under various open-source
+licenses. Their license texts are provided in the [licenses/](./licenses) directory.
+
 ## Features
 
 - **Languages** – Supports all [languages available](https://github.com/argosopentech/argos-translate?tab=readme-ov-file#supported-languages) in Argos Translate.
@@ -186,31 +194,42 @@ HKEY_CURRENT_USER\Software\icosane\Alyssum
 ```
 ---
 
-## Acknowledgments
+## Acknowledgments, Licenses and Third-Party Software
+
+This project uses the following open-source libraries:
 
 ### Core Libraries
-- [Argos Translate](https://github.com/argosopentech/argos-translate)
-- [Tesseract OCR Engine](https://github.com/tesseract-ocr/tesseract)
-- [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
-- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files)
-- [PyQt5](https://pypi.org/project/PyQt5/)
-- [Flask](https://pypi.org/project/Flask/)
+- [Argos Translate](https://github.com/argosopentech/argos-translate) - Machine translation library, licensed under the [MIT License](./licenses/argos-translate-LICENSE.txt)
+- [Tesseract OCR Engine](https://github.com/tesseract-ocr/tesseract) - an OCR engine, licensed under the [Apache License 2.0](./licenses/tesseract-LICENSE.txt)
+- [QFluentWidgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets) - a fluent design widgets library, licensed under the [GNU General Public License v3.0](./licenses/PyQt-Fluent-Widgets-LICENSE.txt) 
+- [argos-translate-files](https://github.com/LibreTranslate/argos-translate-files) - a library for translating files using Argos Translate, licensed under the [GNU Affero General Public License v3.0](./licenses/argos-translate-files-LICENSE.txt) 
+- [PyQt5](https://pypi.org/project/PyQt5/) - a comprehensive set of Python bindings for Qt v5, licensed under the [GNU General Public License v3.0](./licenses/PyQt-LICENSE.txt) 
+- [Flask](https://pypi.org/project/Flask/) - the Python micro framework for building web applications,  licensed under the [BSD 3-Clause License](./licenses/flask-LICENSE.txt) 
 
 ### Supporting Libraries & Tools
-- [langdetect](https://github.com/Mimino666/langdetect)
-- [pytesseract](https://github.com/madmaze/pytesseract)
-- [opencv-python](https://github.com/opencv/opencv-python)
-- [pyautogui](https://github.com/asweigart/pyautogui)
-- [pillow](https://github.com/python-pillow/Pillow)
-- [cuda runtime libraries](https://pypi.org/user/nvidia/)
-- [PyInstaller](https://pyinstaller.org/)
-- [waitress](https://pypi.org/project/waitress/)
-- [jsonify](https://pypi.org/project/jsonify/)
+- [langdetect](https://github.com/Mimino666/langdetect) - port of Google's language-detection library to Python, licensed under the [Apache License 2.0](./licenses/langdetect-LICENSE.txt)
+- [pytesseract](https://github.com/madmaze/pytesseract) - a Python wrapper for Google Tesseract, licensed under the [Apache License 2.0](./licenses/pytesseract-LICENSE.txt) 
+- [opencv-python](https://github.com/opencv/opencv-python) - a library for computer vision and image processing, licensed under the [MIT License](./licenses/opencv-python-LICENSE.txt)
+- [pyautogui](https://github.com/asweigart/pyautogui) - a cross-platform GUI automation Python module, licensed under the [BSD 3-Clause License](./licenses/pyautogui-LICENSE.txt)
+- [pillow](https://github.com/python-pillow/Pillow) - a Python Imaging Library, licensed under the [MIT-CMU License](./licenses/pillow-LICENSE.txt) 
+- [nvidia-cuda-runtime](https://pypi.org/project/nvidia-cuda-runtime-cu12/), licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
+- [nvidia-cudnn](https://pypi.org/project/nvidia-cudnn-cu12/), licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
+- [nvidia-cublas](https://pypi.org/project/nvidia-cublas-cu12/), licensed under the [NVIDIA EULA](./licenses/nvidia-EULA.pdf) 
+- [PyInstaller](https://pyinstaller.org/) - bundles a Python application and all its dependencies into a single package. Licensed under the [GPL 2.0 License and the Apache License 2.0](./licenses/pyinstaller-COPYING.txt) 
+- [waitress](https://pypi.org/project/waitress/) - a WSGI server for Python 3, licensed under the [Zope Public License (ZPL) 2.1](./licenses/waitress-LICENSE.txt)   
+- [jsonify](https://pypi.org/project/jsonify/) - a csv to json converter, licensed under the [MIT License](./licenses/jsonify-LICENSE.txt)
+- [pytorch](https://github.com/pytorch/pytorch) - Tensors and Dynamic neural networks in Python with strong GPU acceleration, licensed under the [pytorch License](./licenses/pytorch-LICENSE.txt)
 
 ### Resources & References
 - [Tesseract portable](https://forum.powerbasic.com/forum/user-to-user-discussions/powerbasic-for-windows/826079-portable-tesseract)
 - [Letter T icons](https://www.flaticon.com/free-icons/letter-t) by Luch Phou – Flaticon
 - [Sl-Alex for ShortcutEdit](https://sl-alex.net/gui/2022/08/21/shortcutedit_capturing_shortcuts_in_pyqt/)
+
+See the licenses/ folder for full license texts.
+
+**This software contains source code provided by NVIDIA Corporation.**
+
+> **NOTE**: This software depends on packages that may be licensed under different open source licenses.
 ---
 
 ## Screenshots

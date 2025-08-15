@@ -823,7 +823,7 @@ class MainWindow(QMainWindow):
             text="Github",
             icon=FluentIcon.INFO,
             title=QCoreApplication.translate("MainWindow", "About"),
-            content=QCoreApplication.translate("MainWindow", "Simple local translator based on ArgosTranslate")
+            content=QCoreApplication.translate("MainWindow", "An offline translator that offers support for OCR and file, book translation. Licenses and more can be found on Github.")
         )
         card_layout.addWidget(self.card_ab,  alignment=Qt.AlignmentFlag.AlignTop )
 
