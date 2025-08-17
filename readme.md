@@ -1,8 +1,6 @@
-An offline translator that combines **Argos Translate**, **Tesseract OCR**, **faster-whisper**, and a fluent PyQt interface via **QFluentWidgets**.
-
-> **Alyssum** is an offline translator that combines the power of [Argos Translate](https://github.com/argosopentech/argos-translate) with [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and [faster-whisper](https://github.com/SYSTRAN/faster-whisper).  
-> Translate text, documents, books, and even on-screen content — all without an internet connection.  
-> Privacy-friendly and designed for quick everyday use.
+**Alyssum** is an offline translator that combines the power of [Argos Translate](https://github.com/argosopentech/argos-translate) with [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and [faster-whisper](https://github.com/SYSTRAN/faster-whisper).  
+Translate text, documents, books, and even on-screen content — all without an internet connection.  
+Privacy-friendly and designed for quick everyday use.
 
 ## License
 
@@ -19,7 +17,7 @@ licenses. Their license texts are provided in the [licenses/](./licenses) direct
 - **Integrated OCR** with Tesseract for capturing text from images and PDFs.
 - **Voice input** powered by faster-whisper for quick speech-to-translation.
 - **Configurable shortcuts** for all main actions — launch OCR, translate, clear windows, copy results, start voice input and translate files.
-- **File translation** for .txt, .odt, .odp, .docx, .pptx, .epub, .html, .srt, and .pdf.
+- **File translation** for `.txt`, `.odt`, `.odp`, `.docx`, `.pptx`, `.epub`, `.html`, `.srt`, and `.pdf`.
 - **Browser extension** for translating selectable text without manual copy-paste.
 - **GPU acceleration** support for faster translation on compatible NVIDIA cards.
 

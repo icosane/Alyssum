@@ -8,11 +8,11 @@ data += collect_dynamic_libs('cv2')
 data += collect_dynamic_libs('PyQt5')
 
 a = Analysis(
-    ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py', './AlyssumResources/tesseract.py', './AlyssumResources/translate_server.py'],
+    ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py', './AlyssumResources/tesseract.py', './AlyssumResources/translate_server.py', './AlyssumResources/voice_input.py'],
     pathex=[],
     binaries=data,
     datas=[('AlyssumResources','AlyssumResources')],
-    hiddenimports=['PyQt5', 'qfluentwidgets'],
+    hiddenimports=['PyQt5', 'qfluentwidgets', 'pyaudio', 'faster_whisper'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
