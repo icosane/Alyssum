@@ -5,14 +5,16 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QCoreApplication, pyqtSlot
 sys.stdout = open(os.devnull, 'w')
 import warnings
 warnings.filterwarnings("ignore")
-from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition, SwitchSettingCard
+from qfluentwidgets import setThemeColor, TransparentToolButton, FluentIcon, PushSettingCard, isDarkTheme, MessageBox, FluentTranslator, IndeterminateProgressBar, PushButton, SubtitleLabel, ComboBoxSettingCard, OptionsSettingCard, HyperlinkCard, ScrollArea, InfoBar, InfoBarPosition, StrongBodyLabel, TransparentTogglePushButton, TextBrowser, TextEdit, BodyLabel, LineEdit, SimpleExpandGroupSettingCard, SwitchButton, ToolTipFilter, ToolTipPosition, SwitchSettingCard, ToolButton
 from qframelesswindow.utils import getSystemAccentColor
-from AlyssumResources.config import cfg, TranslationPackage, available_packages
+from AlyssumResources.config import cfg, TranslationPackage, available_packages, available_models
 from AlyssumResources.argos_utils import update_package
 from AlyssumResources.translator import TextTranslator
 from AlyssumResources.tesseract import OCR
 from AlyssumResources.file_translator import FileTranslator
 from AlyssumResources.translate_server import TranslateServer
+from AlyssumResources.whisper_utils import update_model
+from AlyssumResources.voice_input import VoiceController
 from ctranslate2 import get_cuda_device_count
 import shutil
 import traceback
@@ -132,6 +134,14 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
         file_shortcut = cfg.get(cfg.filecut).toString()
         self.modeButton4.setText(file_shortcut)
 
+        # Sixth group
+        self.modeButton5 = ShortcutEdit()
+        self.modeLabel5 = BodyLabel(QCoreApplication.translate("MainWindow", "Configure voice input shortcut"))
+        self.modeButton5.setFixedWidth(155)
+        self.modeButton5.shortcutChanged.connect(self.updateVoiceShortcut)
+        voice_shortcut = cfg.get(cfg.startvi).toString()
+        self.modeButton5.setText(voice_shortcut)
+
         # Adjust the internal layout
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
         self.viewLayout.setSpacing(0)
@@ -142,6 +152,7 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
         self.add(self.modeLabel2, self.modeButton2)
         self.add(self.modeLabel3, self.modeButton3)
         self.add(self.modeLabel4, self.modeButton4)
+        self.add(self.modeLabel5, self.modeButton5)
 
     def add(self, label, widget):
         w = QWidget()
@@ -185,6 +196,11 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
         shortcut = QKeySequence(shortcut_str)
         cfg.set(cfg.filecut, shortcut)
 
+    def updateVoiceShortcut(self, key, modifiers):
+        shortcut_str = self._modifiers_to_string(key, modifiers)
+        shortcut = QKeySequence(shortcut_str)
+        cfg.set(cfg.startvi, shortcut)
+
     def _modifiers_to_string(self, key, modifiers):
         names = []
 
@@ -214,6 +230,12 @@ class ShortcutsCard(SimpleExpandGroupSettingCard):
 
     def set_copy_shortcut(self, shortcut):
         self.modeButton3.setText(shortcut.toString())
+
+    def set_file_shortcut(self, shortcut):
+        self.modeButton4.setText(shortcut.toString())
+
+    def set_voice_shortcut(self, shortcut):
+        self.modeButton5.setText(shortcut.toString())
 
 class ShortcutEdit(LineEdit):
     shortcutChanged = pyqtSignal(int, list)
@@ -457,6 +479,7 @@ class PlainTextEdit(TextEdit):
 class MainWindow(QMainWindow):
     theme_changed = pyqtSignal()
     package_changed = pyqtSignal()
+    whispermodel_changed = pyqtSignal()
     lang_changed = pyqtSignal()
     fileSelected = pyqtSignal(str)
 
@@ -502,6 +525,11 @@ class MainWindow(QMainWindow):
         self.lang_widget_settings.setLayout(self.lang_layout_settings)
         self.lang_layout_settings.addStretch()
 
+        self.voice_controller = VoiceController(
+            whisper_model_name=cfg.get(cfg.whisper_model).value,
+            device="cuda" if get_cuda_device_count() > 0 else "cpu"
+        )
+
         self.main_layout()
         self.settings_layout()
         self.setup_theme()
@@ -510,13 +538,14 @@ class MainWindow(QMainWindow):
 
         self.theme_changed.connect(self.update_theme)
         self.package_changed.connect(lambda: update_package(self))
+        self.lang_changed.connect(self.on_lang_change)
+        self.whispermodel_changed.connect(lambda: update_model(self))
 
         self.translator = TextTranslator(self, cfg)
         self.screenshot_tool = ScreenshotTool(parent=self)
         self.screenshot_tool.screenshot_taken.connect(self.on_screenshot_taken)
         self.ocr = OCR(self, cfg)
         self.file_translator = FileTranslator(self, cfg)
-        self.lang_changed.connect(self.on_lang_change)
         cfg.ocrcut.valueChanged.connect(self.update_ocr_shortcut)
         cfg.tlcut.valueChanged.connect(self.update_translation_shortcut)
         cfg.clcut.valueChanged.connect(self.update_clear_shortcut)
@@ -640,6 +669,8 @@ class MainWindow(QMainWindow):
         self.textinputw.setFont(font)
         main_layout.addWidget(self.textinputw)
 
+        self.mic_button = ToolButton(FluentIcon.MICROPHONE)
+        button_layout.addWidget(self.mic_button)
         self.tl_button = PushButton(QCoreApplication.translate("MainWindow",'Translate'))
         button_layout.addWidget(self.tl_button)
         self.cl_button = PushButton(QCoreApplication.translate("MainWindow",'Clear'))
@@ -693,6 +724,21 @@ class MainWindow(QMainWindow):
         self.tl_button.clicked.connect(self.start_translation_process)
         self.cl_button.clicked.connect(self.clearinpoutw)
         self.file_button.clicked.connect(self.start_file_translation)
+        self.mic_button.clicked.connect(self.voice_controller.toggle_recording)
+        self.voice_controller.recording_started.connect(self._on_recording_started)
+        self.voice_controller.recording_stopped.connect(self._on_recording_stopped)
+        self.voice_controller.transcription_ready.connect(self.on_transcription_ready)
+
+        self.voice_controller.recording_started.connect(
+            lambda: self.textinputw.setPlaceholderText(
+                (QCoreApplication.translate("MainWindow","Recording...") if self.voice_controller.model else (QCoreApplication.translate("MainWindow","Loading Whisper model...")))
+            )
+        )
+        self.voice_controller.recording_stopped.connect(
+            lambda: self.textinputw.setPlaceholderText(QCoreApplication.translate("MainWindow","Transcribing..."))
+        )
+        self.voice_controller.transcription_ready.connect(self.on_transcription_ready)
+
 
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
@@ -755,6 +801,31 @@ class MainWindow(QMainWindow):
         self.card_deleteargosmodel.clicked.connect(self.packageremover)
         if ((cfg.get(cfg.package).value == 'None')):
             self.card_deleteargosmodel.button.setDisabled(True)
+
+        card_layout.addSpacing(20)
+        self.card_setwhispermodel = ComboBoxSettingCard(
+            configItem=cfg.whisper_model,
+            icon=FluentIcon.CLOUD_DOWNLOAD,
+            title=QCoreApplication.translate("MainWindow","Whisper Model"),
+            content=QCoreApplication.translate("MainWindow", "Change text-to-speech model"),
+            texts=['None',
+                *[m for m in available_models() if not m.startswith('distil') and not m.endswith('.en') and m != 'turbo']]
+        )
+
+        card_layout.addWidget(self.card_setwhispermodel, alignment=Qt.AlignmentFlag.AlignTop)
+        cfg.whisper_model.valueChanged.connect(self.whispermodel_changed.emit)
+
+        self.card_deletewhispermodel = PushSettingCard(
+            text=QCoreApplication.translate("MainWindow","Remove"),
+            icon=FluentIcon.BROOM,
+            title=QCoreApplication.translate("MainWindow","Remove Whisper model"),
+            content=QCoreApplication.translate("MainWindow", "Delete currently selected text-to-speech model. Will be removed: <b>{}</b>").format(cfg.get(cfg.whisper_model).value),
+        )
+
+        card_layout.addWidget(self.card_deletewhispermodel, alignment=Qt.AlignmentFlag.AlignTop)
+        self.card_deletewhispermodel.clicked.connect(self.whispermodelremover)
+        if ((cfg.get(cfg.whisper_model).value == 'None')):
+            self.card_deletewhispermodel.button.setDisabled(True)
 
         self.miscellaneous_title = StrongBodyLabel(QCoreApplication.translate("MainWindow", "Miscellaneous"))
         self.miscellaneous_title.setTextColor(QColor(0, 0, 0), QColor(255, 255, 255))
@@ -823,7 +894,7 @@ class MainWindow(QMainWindow):
             text="Github",
             icon=FluentIcon.INFO,
             title=QCoreApplication.translate("MainWindow", "About"),
-            content=QCoreApplication.translate("MainWindow", "An offline translator that offers support for OCR and file, book translation. Licenses and more can be found on Github.")
+            content=QCoreApplication.translate("MainWindow", "Offline translator with OCR, voice input and support for file/book translation.\nThis software contains source code provided by NVIDIA Corporation. Licenses and details are on GitHub.")
         )
         card_layout.addWidget(self.card_ab,  alignment=Qt.AlignmentFlag.AlignTop )
 
@@ -898,6 +969,8 @@ class MainWindow(QMainWindow):
                 self.selectandcopy()
             elif pressed.matches(cfg.get(cfg.filecut)) == QKeySequence.ExactMatch:
                 self.start_file_translation()
+            elif pressed.matches(cfg.get(cfg.startvi)) == QKeySequence.ExactMatch:
+                self.voice_controller.toggle_recording()
 
         super().keyPressEvent(event)
 
@@ -1124,6 +1197,37 @@ class MainWindow(QMainWindow):
                 parent=self
             )
 
+    def whispermodelremover(self):
+        directory = os.path.join(base_dir, "AlyssumResources", "models", "whisper", f"models--Systran--faster-whisper-{cfg.get(cfg.whisper_model).value}")
+        if not os.path.exists(directory):
+            directory = os.path.join(base_dir, "AlyssumResources", "models", "whisper", f"models--mobiuslabsgmbh--faster-whisper-{cfg.get(cfg.whisper_model).value}")
+        if os.path.exists(directory) and os.path.isdir(directory):
+            try:
+                # Remove the directory and its contents
+                shutil.rmtree(directory)
+                cfg.set(cfg.whisper_model, 'None')
+
+
+                InfoBar.success(
+                    title=QCoreApplication.translate("MainWindow", "Success"),
+                    content=QCoreApplication.translate("MainWindow", "Whisper Model removed"),
+                    orient=Qt.Orientation.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.TOP_RIGHT,
+                    duration=2000,
+                    parent=self
+                )
+            except Exception as e:
+                InfoBar.error(
+                    title=QCoreApplication.translate("MainWindow", "Error"),
+                    content=QCoreApplication.translate("MainWindow", f"Failed to remove Whisper model: {e}"),
+                    orient=Qt.Orientation.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.TOP_RIGHT,
+                    duration=2000,
+                    parent=self
+                )
+
     def closeEvent(self, event):
         if cfg.get(cfg.tray) is True:
             event.ignore()
@@ -1192,6 +1296,16 @@ class MainWindow(QMainWindow):
 
     def update_copy_shortcut(self, shortcut):
         self.card_editshortcuts.set_copy_shortcut(shortcut)
+
+    def update_file_shortcut(self, shortcut):
+        self.card_editshortcuts.set_file_shortcut(shortcut)
+
+    def update_voice_shortcut(self, shortcut):
+        self.card_editshortcuts.set_voice_shortcut(shortcut)
+
+    def update_remove_button(self, enabled):
+        if hasattr(self, 'card_deletewhispermodel'):
+            self.card_deletewhispermodel.button.setEnabled(enabled)
 
     def open_file_dialog(self):
         initial_dir = self.last_directory if self.last_directory else ""
@@ -1323,6 +1437,71 @@ class MainWindow(QMainWindow):
                 duration=200000,
                 parent=self
             )
+
+    def _on_mic_button_clicked(self):
+        # Always clear text before recording starts
+        self.clearinpoutw()
+        self.voice_controller.toggle_recording()
+
+    def _on_recording_started(self):
+        self.clearinpoutw()
+        if self.voice_controller.model:
+            self.textinputw.setPlaceholderText(QCoreApplication.translate("MainWindow","Recording..."))
+        else:
+            self.textinputw.setPlaceholderText(QCoreApplication.translate("MainWindow","Loading Whisper model..."))
+        self.mic_button.setIcon(FluentIcon.PAUSE)
+
+    def _on_recording_stopped(self):
+        self.textinputw.setPlaceholderText(QCoreApplication.translate("MainWindow","Transcribing..."))
+
+    def on_transcription_ready(self, text):
+        self.textinputw.setPlainText(text)
+        self.textinputw.setPlaceholderText("")  # clear placeholder
+        # Restore mic icon
+        self.mic_button.setIcon(FluentIcon.MICROPHONE)
+
+
+
+    def on_whispermodel_download_finished(self, status):
+        if status == "start":
+            self.download_progressbar.start()
+            InfoBar.info(
+                title=QCoreApplication.translate("MainWindow", "Information"),
+                content=QCoreApplication.translate("MainWindow", "Downloading {} model").format(cfg.get(cfg.whisper_model).value),
+                orient=Qt.Orientation.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=4000,
+                parent=self
+            )
+            self.update_remove_button(False)
+
+        elif status == "success":
+            if hasattr(self, 'model_thread') and self.model_thread.isRunning():
+                self.model_thread.stop()  # Stop the thread after success
+            self.download_progressbar.stop()
+            InfoBar.success(
+                title=QCoreApplication.translate("MainWindow", "Success"),
+                content=QCoreApplication.translate("MainWindow", "{} model installed successfully!").format(cfg.get(cfg.whisper_model).value),
+                orient=Qt.Orientation.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=4000,
+                parent=self
+            )
+            self.update_remove_button(True)
+
+        else:
+            InfoBar.error(
+                title=QCoreApplication.translate("MainWindow", "Error"),
+                content=QCoreApplication.translate("MainWindow", f"Failed to download Whisper model: {status}"),
+                orient=Qt.Orientation.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=4000,
+                parent=self
+            )
+            self.update_remove_button(False)
 
     def on_package_download_finished(self, status):
         if status == "start":

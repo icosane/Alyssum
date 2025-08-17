@@ -3,6 +3,7 @@ import os, sys
 from pathlib import Path
 import pytesseract
 from ctranslate2 import get_cuda_device_count
+from faster_whisper import available_models
 from PyQt5.QtCore import QLocale
 from PyQt5.QtGui import QKeySequence
 from qfluentwidgets import (qconfig, QConfig, OptionsConfigItem, Theme,
@@ -132,6 +133,28 @@ class KeyCombinationConfigItem(ConfigItem):
     def __init__(self, group: str, key: str, default: str):
         super().__init__(group, key, QKeySequence(default), serializer=KeyCombinationSerializer())
 
+
+filtered_models = [m for m in available_models() if not m.startswith('distil') and not m.endswith('.en') and m != 'turbo']
+
+WhisperModel = Enum('WhisperModel', {**{"NONE": "None"}, **{m.upper(): m for m in filtered_models}})
+
+class WhisperModelSerializer(ConfigSerializer):
+    """ WhisperModel serializer """
+
+    def __init__(self):
+        self.model_map = {model.value: model for model in WhisperModel}
+
+    def serialize(self, model):
+        return model.value if model != WhisperModel.NONE else "None"
+
+    def deserialize(self, value: str):
+        if value == "None":
+            return WhisperModel.NONE
+        model = self.model_map.get(value)
+        if model is None:
+            raise ValueError(f"Invalid model: {value}")
+        return model
+
 class Config(QConfig):
     language = OptionsConfigItem(
         "Settings", "language", QLocale.Language.English, OptionsValidator(Language), LanguageSerializer(), restart=True)
@@ -141,12 +164,15 @@ class Config(QConfig):
         "Settings", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True)
     package = OptionsConfigItem(
         "Translation", "package", TranslationPackage.NONE, OptionsValidator(TranslationPackage), TranslationPackageSerializer(), restart=False)
+    whisper_model = OptionsConfigItem(
+        "Whisper", "whisper_model", WhisperModel.NONE, OptionsValidator(WhisperModel), WhisperModelSerializer(), restart=False)
     shortcuts = ConfigItem("Shortcuts", "shortcuts", False, BoolValidator())
     ocrcut = KeyCombinationConfigItem("Shortcuts", "OCR", "F1")
     tlcut = KeyCombinationConfigItem("Shortcuts", "Translation", "F2")
     clcut = KeyCombinationConfigItem("Shortcuts", "Clear windows", "F3")
     copycut = KeyCombinationConfigItem("Shortcuts", "SelectAndCopy", "F5")
     filecut = KeyCombinationConfigItem("Shortcuts", "FileTranslation", "F6")
+    startvi = KeyCombinationConfigItem("Shortcuts", "VoiceInput", "F7")
     tray = ConfigItem("Settings", "minimizetotray", False, BoolValidator())
 
 

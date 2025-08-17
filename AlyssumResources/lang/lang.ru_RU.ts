@@ -4,162 +4,162 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="main.py" line="465"/>
+        <location filename="main.py" line="488"/>
         <source>Alyssum</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="main.py" line="641"/>
+        <location filename="main.py" line="674"/>
         <source>Translate</source>
         <translation>Перевести</translation>
     </message>
     <message>
-        <location filename="main.py" line="712"/>
+        <location filename="main.py" line="760"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="main.py" line="719"/>
+        <location filename="main.py" line="767"/>
         <source>Model management</source>
         <translation>Управление моделями</translation>
     </message>
     <message>
-        <location filename="main.py" line="724"/>
+        <location filename="main.py" line="772"/>
         <source>Argos Translate package</source>
         <translation>Пакет Argos Translate</translation>
     </message>
     <message>
-        <location filename="main.py" line="724"/>
+        <location filename="main.py" line="772"/>
         <source>Change translation package</source>
         <translation>Изменить пакет перевода</translation>
     </message>
     <message>
-        <location filename="main.py" line="745"/>
+        <location filename="main.py" line="818"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="main.py" line="745"/>
+        <location filename="main.py" line="793"/>
         <source>Remove Argos Translate package</source>
         <translation>Удалить пакет Argos Translate</translation>
     </message>
     <message>
-        <location filename="main.py" line="745"/>
+        <location filename="main.py" line="793"/>
         <source>Delete currently selected translation package. Will be removed: &lt;b&gt;{}&lt;/b&gt;</source>
         <translation>Удалить выбранный пакет перевода. Будет удален: &lt;b&gt;{}&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="main.py" line="757"/>
+        <location filename="main.py" line="830"/>
         <source>Miscellaneous</source>
         <translation>Разное</translation>
     </message>
     <message>
-        <location filename="main.py" line="783"/>
+        <location filename="main.py" line="856"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
     <message>
-        <location filename="main.py" line="783"/>
+        <location filename="main.py" line="856"/>
         <source>Change UI language</source>
         <translation>Изменить язык интерфейса</translation>
     </message>
     <message>
-        <location filename="main.py" line="794"/>
+        <location filename="main.py" line="867"/>
         <source>Application theme</source>
         <translation>Тема приложения</translation>
     </message>
     <message>
-        <location filename="main.py" line="794"/>
+        <location filename="main.py" line="867"/>
         <source>Adjust how the application looks</source>
         <translation>Настройка внешнего вида приложения</translation>
     </message>
     <message>
-        <location filename="main.py" line="794"/>
+        <location filename="main.py" line="867"/>
         <source>Light</source>
         <translation>Светлая</translation>
     </message>
     <message>
-        <location filename="main.py" line="794"/>
+        <location filename="main.py" line="867"/>
         <source>Dark</source>
         <translation>Темная</translation>
     </message>
     <message>
-        <location filename="main.py" line="805"/>
+        <location filename="main.py" line="878"/>
         <source>Follow System Settings</source>
         <translation>Как в системе</translation>
     </message>
     <message>
-        <location filename="main.py" line="805"/>
+        <location filename="main.py" line="878"/>
         <source>Interface zoom</source>
         <translation>Масштаб интерфейса</translation>
     </message>
     <message>
-        <location filename="main.py" line="805"/>
+        <location filename="main.py" line="878"/>
         <source>Change the size of widgets and fonts</source>
         <translation>Изменение размера виджетов и шрифтов</translation>
     </message>
     <message>
-        <location filename="main.py" line="819"/>
+        <location filename="main.py" line="892"/>
         <source>About</source>
         <translation>О программе</translation>
     </message>
     <message>
         <location filename="main.py" line="819"/>
         <source>Simple local translator based on ArgosTranslate</source>
-        <translation>Простой офлайн переводчик основанный на Argos Translate</translation>
+        <translation type="obsolete">Простой офлайн переводчик основанный на Argos Translate</translation>
     </message>
     <message>
-        <location filename="main.py" line="1333"/>
+        <location filename="main.py" line="1521"/>
         <source>Success</source>
         <translation>Успешно</translation>
     </message>
     <message>
-        <location filename="main.py" line="1092"/>
+        <location filename="main.py" line="1169"/>
         <source>Translation package removed successfully</source>
         <translation>Пакет перевода успешно удален</translation>
     </message>
     <message>
-        <location filename="main.py" line="1102"/>
+        <location filename="main.py" line="1179"/>
         <source>Warning</source>
         <translation>Внимание</translation>
     </message>
     <message>
-        <location filename="main.py" line="1102"/>
+        <location filename="main.py" line="1179"/>
         <source>No translation package found to remove</source>
         <translation>Пакет перевода для удаления не найден</translation>
     </message>
     <message>
-        <location filename="main.py" line="1345"/>
+        <location filename="main.py" line="1533"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="main.py" line="1113"/>
+        <location filename="main.py" line="1190"/>
         <source>Failed to remove translation package: {str(e)}</source>
         <translation>Ошибка удаления пакета перевода: {str(e)}</translation>
     </message>
     <message>
-        <location filename="main.py" line="1146"/>
+        <location filename="main.py" line="1259"/>
         <source>Setting takes effect after restart</source>
         <translation>Настройка вступает в силу после перезапуска</translation>
     </message>
     <message>
-        <location filename="main.py" line="1321"/>
+        <location filename="main.py" line="1509"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="main.py" line="1321"/>
+        <location filename="main.py" line="1509"/>
         <source>Downloading {} package</source>
         <translation>Загрузка {} пакета</translation>
     </message>
     <message>
-        <location filename="main.py" line="1333"/>
+        <location filename="main.py" line="1521"/>
         <source>Package installed successfully!</source>
         <translation>Пакет успешно установлен!</translation>
     </message>
     <message>
-        <location filename="main.py" line="643"/>
+        <location filename="main.py" line="676"/>
         <source>Clear</source>
         <translation>Очистить</translation>
     </message>
@@ -189,77 +189,77 @@
         <translation type="obsolete">Нажмите F1 для перевода, F2 для очистки окон, F3 для копирования перевода в буфер обмена.</translation>
     </message>
     <message>
-        <location filename="main.py" line="875"/>
+        <location filename="main.py" line="948"/>
         <source>Successfully copied to the clipboard</source>
         <translation>Успешно скопировано в буфер обмена</translation>
     </message>
     <message>
-        <location filename="main.py" line="89"/>
+        <location filename="main.py" line="91"/>
         <source>Keyboard shortcuts</source>
         <translation>Сочетания клавиш</translation>
     </message>
     <message>
-        <location filename="main.py" line="89"/>
+        <location filename="main.py" line="91"/>
         <source>Edit keyboard shortcuts</source>
         <translation>Изменить сочетания клавиш</translation>
     </message>
     <message>
-        <location filename="main.py" line="97"/>
+        <location filename="main.py" line="99"/>
         <source>Configure OCR shortcut</source>
         <translation>Изменить шорткат для OCR</translation>
     </message>
     <message>
-        <location filename="main.py" line="105"/>
+        <location filename="main.py" line="107"/>
         <source>Configure translation shortcut</source>
         <translation>Изменить шорткат для перевода</translation>
     </message>
     <message>
-        <location filename="main.py" line="113"/>
+        <location filename="main.py" line="115"/>
         <source>Configure clear shortcut</source>
         <translation>Изменить шорткат для очистки окон</translation>
     </message>
     <message>
-        <location filename="main.py" line="121"/>
+        <location filename="main.py" line="123"/>
         <source>Configure copy shortcut</source>
         <translation>Изменить шорткат для копирования в буфер обмена</translation>
     </message>
     <message>
-        <location filename="main.py" line="129"/>
+        <location filename="main.py" line="131"/>
         <source>Configure file translator shortcut</source>
         <translation>Изменить шорткат для переводчика файлов</translation>
     </message>
     <message>
-        <location filename="main.py" line="675"/>
+        <location filename="main.py" line="708"/>
         <source>Copy to clipboard</source>
         <translation>Скопировать в буфер обмена</translation>
     </message>
     <message>
-        <location filename="main.py" line="917"/>
+        <location filename="main.py" line="992"/>
         <source>Start OCR</source>
         <translation>Запустить OCR</translation>
     </message>
     <message>
-        <location filename="main.py" line="683"/>
+        <location filename="main.py" line="716"/>
         <source>Open file picker</source>
         <translation>Выбрать файл для перевода</translation>
     </message>
     <message>
-        <location filename="main.py" line="1190"/>
+        <location filename="main.py" line="1313"/>
         <source>Select file</source>
         <translation>Выберите файл</translation>
     </message>
     <message>
-        <location filename="main.py" line="1190"/>
+        <location filename="main.py" line="1313"/>
         <source>Text files (*.pdf *.epub *.docx *.txt);;All Files (*)</source>
         <translation>Текстовые файлы (*.pdf *.epub *.docx *.txt);;Все файлы (*)</translation>
     </message>
     <message>
-        <location filename="main.py" line="1203"/>
+        <location filename="main.py" line="1326"/>
         <source>This file format is not fully supported. Please convert it to .docx and try again</source>
         <translation>Этот формат файла поддерживается не полностью. Пожалуйста, конвертируйте его в .docx и повторите попытку</translation>
     </message>
     <message>
-        <location filename="main.py" line="1213"/>
+        <location filename="main.py" line="1336"/>
         <source>Dropped file is not supported</source>
         <translation>Перетащенный файл не поддерживается</translation>
     </message>
@@ -269,49 +269,122 @@
         <translation type="obsolete">Переведенный файл сохранен в &lt;b&gt;{}&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="main.py" line="862"/>
+        <location filename="main.py" line="935"/>
         <source>Nothing to copy</source>
         <translation>Нет текста для копирования</translation>
     </message>
     <message>
-        <location filename="main.py" line="913"/>
+        <location filename="main.py" line="988"/>
         <source>Show</source>
         <translation>Показать</translation>
     </message>
     <message>
-        <location filename="main.py" line="923"/>
+        <location filename="main.py" line="996"/>
         <source>Language package</source>
         <translation>Языковой пакет</translation>
     </message>
     <message>
-        <location filename="main.py" line="927"/>
+        <location filename="main.py" line="1002"/>
         <source>Quit</source>
         <translation>Выход</translation>
     </message>
     <message>
-        <location filename="main.py" line="1237"/>
+        <location filename="main.py" line="1360"/>
         <source>Translated file saved to {}</source>
         <translation>Переведенный файл сохранен в {}</translation>
     </message>
     <message>
-        <location filename="main.py" line="765"/>
+        <location filename="main.py" line="838"/>
         <source>Enable Browser extension</source>
         <translation>Включить расширение для браузера</translation>
     </message>
     <message>
-        <location filename="main.py" line="765"/>
+        <location filename="main.py" line="838"/>
         <source>Integrates with the web browser and alters the way the app minimizes to the system tray instead of the taskbar.</source>
         <translation>Интегрируется с веб-браузером и изменяет способ сворачивания приложения в трей, а не на панель задач.</translation>
     </message>
     <message>
-        <location filename="main.py" line="774"/>
+        <location filename="main.py" line="847"/>
         <source>Copy</source>
         <translation>Копировать</translation>
     </message>
     <message>
-        <location filename="main.py" line="774"/>
+        <location filename="main.py" line="847"/>
         <source>API key</source>
         <translation>Ключ API</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="1449"/>
+        <source>Recording...</source>
+        <translation>Идет запись...</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="1451"/>
+        <source>Loading Whisper model...</source>
+        <translation>Загрузка модели Whisper...</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="1455"/>
+        <source>Transcribing...</source>
+        <translation>Расшифровка...</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="806"/>
+        <source>Whisper Model</source>
+        <translation>Модель Whisper</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="806"/>
+        <source>Change text-to-speech model</source>
+        <translation>Изменить модель преобразования текста в речь</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="818"/>
+        <source>Remove Whisper model</source>
+        <translation>Удалить модель Whisper</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="818"/>
+        <source>Delete currently selected text-to-speech model. Will be removed: &lt;b&gt;{}&lt;/b&gt;</source>
+        <translation>Удалите выбранную в данный момент модель преобразования текста в речь. Будет удалено: &lt;b&gt;{}&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="892"/>
+        <source>Offline translator with OCR, voice input and support for file/book translation.
+This software contains source code provided by NVIDIA Corporation. Licenses and details are on GitHub.</source>
+        <translation>Офлайн-переводчик с OCR, голосовым вводом и поддержкой перевода файлов/книг.
+Это программное обеспечение содержит исходный код, предоставленный корпорацией NVIDIA. 
+Лицензии и подробности находятся на GitHub.</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="1211"/>
+        <source>Whisper Model removed</source>
+        <translation>Модель Whisper удалена</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="1221"/>
+        <source>Failed to remove Whisper model: {e}</source>
+        <translation>Ошибка удаления модели Whisper: {e}</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="1468"/>
+        <source>Downloading {} model</source>
+        <translation>Загрузка {} модели</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="1483"/>
+        <source>{} model installed successfully!</source>
+        <translation>{} модель успешно установлена!</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="1495"/>
+        <source>Failed to download Whisper model: {status}</source>
+        <translation>Не удалось загрузить модель Whisper: {status}</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="139"/>
+        <source>Configure voice input shortcut</source>
+        <translation>Изменить шорткат для голосового ввода</translation>
     </message>
 </context>
 </TS>

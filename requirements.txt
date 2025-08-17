@@ -14,5 +14,8 @@ Flask==3.1.1
 jsonify==0.5
 waitress==3.0.2
 argos-translate-files==1.4.1
+faster-whisper==1.2.0
+pyaudio==0.2.14
+psutil==7.0.0
 --extra-index-url https://download.pytorch.org/whl/cu126
 torch==2.7.1
