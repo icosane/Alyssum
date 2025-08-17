@@ -1,4 +1,4 @@
-Alyssum is an offline translator that combines **Argos Translate**, **Tesseract OCR**, **faster-whisper**, and a fluent PyQt interface via **QFluentWidgets**.
+An offline translator that combines **Argos Translate**, **Tesseract OCR**, **faster-whisper**, and a fluent PyQt interface via **QFluentWidgets**.
 
 > **Alyssum** is an offline translator that combines the power of [Argos Translate](https://github.com/argosopentech/argos-translate) with [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and [faster-whisper](https://github.com/SYSTRAN/faster-whisper).  
 > Translate text, documents, books, and even on-screen content — all without an internet connection.  
