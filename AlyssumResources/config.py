@@ -174,6 +174,7 @@ class Config(QConfig):
     filecut = KeyCombinationConfigItem("Shortcuts", "FileTranslation", "F6")
     startvi = KeyCombinationConfigItem("Shortcuts", "VoiceInput", "F7")
     tray = ConfigItem("Settings", "minimizetotray", False, BoolValidator())
+    lineformat = ConfigItem("MainWindow", "lineformat", False, BoolValidator())
 
 
 cfg = Config()

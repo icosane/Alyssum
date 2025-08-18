@@ -257,9 +257,12 @@ class ShortcutEdit(LineEdit):
 
             # Ignore pure modifier key presses
             if key in (Qt.Key_Control, Qt.Key_Shift, Qt.Key_Alt, Qt.Key_Meta):
-                self.current_key = 0
-            else:
-                self.current_key = key
+                return True
+
+            if key == Qt.Key_Space and not mods:
+                return True
+
+            self.current_key = key
 
             if mods & Qt.ControlModifier:
                 self.current_modifiers.append(Qt.ControlModifier)
@@ -309,14 +312,13 @@ class ScreenshotOverlay(QWidget):
 
         # Semi-transparent dark overlay
         if not self.selection_rect:
-            # Semi-transparent dark overlay
             painter.fillRect(self.rect(), QColor(0, 0, 0, 100))
 
-        # If a selection is being made
+
         if self.selection_rect:
             # Set up a transparent brush and red pen
             painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
-            painter.setBrush(Qt.NoBrush)  # Make the fill transparent
+            painter.setBrush(Qt.NoBrush)
 
             # Draw the selection rectangle
             painter.drawRect(self.selection_rect)
@@ -345,9 +347,6 @@ class ScreenshotOverlay(QWidget):
             self.end_point = event.pos()
             self.is_drawing = False
             self.setCursor(Qt.ArrowCursor)
-
-            #screen = QApplication.primaryScreen()
-            #screen_geometry = screen.geometry()
 
             # Correctly calculate coordinates
             x1 = min(self.start_point.x(), self.end_point.x())
@@ -387,7 +386,7 @@ class ScreenshotOverlay(QWidget):
                 )
                 pixmap = QPixmap.fromImage(qimage)
 
-                # Close overlay before emitting screenshot
+
                 self.close()
 
                 # Slight delay to ensure overlay is closed
@@ -442,7 +441,7 @@ class ScreenshotTool(QObject):
 class PlainTextEdit(TextEdit):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setAcceptRichText(False)  # Prevent rich text input
+        self.setAcceptRichText(False)
         self.textChanged.connect(self._on_text_changed)
 
     def paste(self):
@@ -457,7 +456,7 @@ class PlainTextEdit(TextEdit):
         if source.hasText():
             self.insertPlainText(source.text())
         else:
-            pass  # Optionally handle other formats
+            pass
 
     def _on_text_changed(self):
         # Ensure any HTML-like content is removed
@@ -495,6 +494,7 @@ class MainWindow(QMainWindow):
             self.settings.setValue("key", self._local_api_key)
         self.restore_settings()
         self.last_directory = ""
+        self.current_text = ""
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
         self.lang_buttons = {
@@ -628,7 +628,6 @@ class MainWindow(QMainWindow):
         if pixmap:
             self.start_ocr_process(pixmap)
         else:
-            # Handle the case where pixmap is empty (if ever occurs)
             InfoBar.warning(
                 title="Warning",
                 content="No valid screenshot captured.",
@@ -785,7 +784,6 @@ class MainWindow(QMainWindow):
         cfg.package.valueChanged.connect(self.package_changed.emit)
         cfg.package.valueChanged.connect(self.lang_changed.emit)
 
-        #card_layout.addWidget(self.lang_widget_settings)
         self.scroll_area_settings.setWidget(self.lang_widget_settings)
         card_layout.addWidget(self.scroll_area_settings)
         self.check_packages()
@@ -852,6 +850,15 @@ class MainWindow(QMainWindow):
         )
         card_layout.addWidget(self.card_apikey, alignment=Qt.AlignmentFlag.AlignTop)
         self.card_apikey.clicked.connect(self.get_translate_server_key)
+
+        self.card_switch_line_format = SwitchSettingCard(
+            icon=FluentIcon.FONT_SIZE,
+            title=QCoreApplication.translate("MainWindow","Voice-to-text output format"),
+            content=QCoreApplication.translate("MainWindow","Click to switch between continuous flow of text and separate lines for each sentence."),
+            configItem=cfg.lineformat
+        )
+
+        card_layout.addWidget(self.card_switch_line_format, alignment=Qt.AlignmentFlag.AlignTop)
 
         self.card_setlanguage = ComboBoxSettingCard(
             configItem=cfg.language,
@@ -1366,7 +1373,7 @@ class MainWindow(QMainWindow):
                 duration=4000,
                 parent=self
             )
-        elif result:  # Error message
+        elif result:
             InfoBar.error(
                 title=QCoreApplication.translate('MainWindow',"Error"),
                 content=result,
@@ -1419,7 +1426,7 @@ class MainWindow(QMainWindow):
     def on_translation_done(self, result, success):
         if success:
             self.textoutputw.setPlainText(result)
-        else:  # Error message
+        else:
             self.textoutputw.setPlainText(f"Error translating:{result}")
 
         if hasattr(self.translator, 'translation_worker'):
@@ -1439,11 +1446,10 @@ class MainWindow(QMainWindow):
             )
 
     def _on_mic_button_clicked(self):
-        # Always clear text before recording starts
-        self.clearinpoutw()
         self.voice_controller.toggle_recording()
 
     def _on_recording_started(self):
+        self.current_text = self.textinputw.toPlainText()
         self.clearinpoutw()
         if self.voice_controller.model:
             self.textinputw.setPlaceholderText(QCoreApplication.translate("MainWindow","Recording..."))
@@ -1455,7 +1461,11 @@ class MainWindow(QMainWindow):
         self.textinputw.setPlaceholderText(QCoreApplication.translate("MainWindow","Transcribing..."))
 
     def on_transcription_ready(self, text):
-        self.textinputw.setPlainText(text)
+        if (cfg.get(cfg.lineformat) is True):
+            final = (self.current_text + '\n' + '\n' + text) if self.current_text else text  # start with new line
+        else:
+            final = (self.current_text + ' ' + text) if self.current_text else text  # default
+        self.textinputw.setPlainText(final)
         self.textinputw.setPlaceholderText("")  # clear placeholder
         # Restore mic icon
         self.mic_button.setIcon(FluentIcon.MICROPHONE)
