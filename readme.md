@@ -169,26 +169,23 @@ If CUDA is available, the app will automatically detect and use it for faster tr
 ## Browser Extension
 
 ### Chrome
-1. Enable **Developer mode** in Extensions and load the `alyssum-ext` folder as **Unpacked**,  
-   **OR**  
-   Set `chrome://flags/#extension-mime-request-handling` to **Always prompt for install**,  
-   then drag `chrome.crx` into Chrome.
+1. Enable **Developer mode** in `chrome://extensions/`.
+2. Click **Load unpacked** and select the `alyssum-ext` folder.
 
-   **OR**  
-   Go to your extensions page in Google Chrome. You can find it in the Tools -> Extensions menu or by using the following URL:`chrome://extensions`. Drag and drop `chrome.crx` into  this window to install it.
+> ⚠️ If you try to install the `.crx` directly, Chrome may block it because it is not from the Chrome Web Store. Use **Load unpacked** instead.
 
-   > **Note:** Chrome may prevent you from running the installed extension because it was not obtained from the Chrome Web Store. In this situation, please use the **first** method (**load as unpacked**)
+*(Optional: For Ungoogled Chromium or Supermium, you can enable `chrome://flags/#extension-mime-request-handling` → **Always prompt for install**, then drag the `.crx` file into Chrome.)*
 
 ### Firefox
-1. Go to `about:config`
-2. Search for `xpinstall.signatures.required`
-3. Set to `false`
-4. Open **Add-ons Manager**, click the settings button → **Install Add-on from File**
-5. Select `firefox.xpi`
+1. Open `about:config`.
+2. Set `xpinstall.signatures.required` to `false`.
+3. Open **Add-ons Manager** → **Settings** → **Install Add-on From File**.
+4. Select `firefox.xpi`.
 
 After installation, go to the app settings, copy the API key, and paste it into the extension settings.
 > **Note:** The API key only needs to be set once.
 
+> ⚠️ **Important:** If using uBlock Origin, make sure to **disable the `Block Outsider Intrusion into LAN` filter**. Otherwise, Alyssum will not be able to communicate with the local server.
 ---
 
 ## Registry entries (Windows)

@@ -26,8 +26,11 @@ class TranslateServer(QThread):
         @self._app.route("/translate", methods=["POST", "OPTIONS"])
         def translate_route():
             if request.method == "OPTIONS":
-                # CORS preflight
-                return ("", 200)
+                response = jsonify({})
+                response.headers["Access-Control-Allow-Origin"] = "*"
+                response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+                response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-API-Key"
+                return response, 200
 
             key = request.headers.get("X-API-Key", "")
             if key != self.api_key:
@@ -59,10 +62,6 @@ class TranslateServer(QThread):
         # Patch temporarily
         setattr(self.main_window, "on_translation_done", handler)
 
-        # Start translation (must happen in main thread)
-        #self.main_window.textinputw.setPlainText(text)
-        #self.main_window.start_translation_process()
-
         # Timeout safety
         QTimer.singleShot(int(self.timeout * 1000), loop.quit)
 
@@ -76,8 +75,6 @@ class TranslateServer(QThread):
         return result_holder["text"]
 
     def run(self):
-        #print(f"[TranslateServer] Running on http://{self.host}:{self.port}")
-        #print(f"[TranslateServer] API Key: {self.api_key}")
         waitress.serve(self._app, host=self.host, port=self.port)
 
     def stop(self):
