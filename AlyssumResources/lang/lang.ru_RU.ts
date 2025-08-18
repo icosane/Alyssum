@@ -71,7 +71,7 @@
     <message>
         <location filename="main.py" line="874"/>
         <source>Adjust how the application looks</source>
-        <translation>Настройка внешнего вида приложения</translation>
+        <translation type="obsolete">Настройка внешнего вида приложения</translation>
     </message>
     <message>
         <location filename="main.py" line="874"/>
@@ -255,8 +255,8 @@
     </message>
     <message>
         <location filename="main.py" line="1333"/>
-        <source>This file format is not fully supported. Please convert it to .docx and try again</source>
-        <translation>Этот формат файла поддерживается не полностью. Пожалуйста, конвертируйте его в .docx и повторите попытку</translation>
+        <source>File format not fully supported. Convert to .docx and try again.</source>
+        <translation>Формат файла поддерживается не полностью. Конвертируйте в .docx и повторите попытку.</translation>
     </message>
     <message>
         <location filename="main.py" line="1343"/>
@@ -335,8 +335,8 @@
     </message>
     <message>
         <location filename="main.py" line="804"/>
-        <source>Change text-to-speech model</source>
-        <translation>Изменить модель преобразования текста в речь</translation>
+        <source>Change speech recognition model</source>
+        <translation>Изменить модель распознавания речи</translation>
     </message>
     <message>
         <location filename="main.py" line="816"/>
@@ -345,14 +345,14 @@
     </message>
     <message>
         <location filename="main.py" line="816"/>
-        <source>Delete currently selected text-to-speech model. Will be removed: &lt;b&gt;{}&lt;/b&gt;</source>
-        <translation>Удалите выбранную в данный момент модель преобразования текста в речь. Будет удалено: &lt;b&gt;{}&lt;/b&gt;</translation>
+        <source>Delete currently selected speech-to-text model. Will be removed: &lt;b&gt;{}&lt;/b&gt;</source>
+        <translation>Удалите выбранную в данный момент модель распознавания речи. Будет удалена: &lt;b&gt;{}&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="main.py" line="899"/>
         <source>Offline translator with OCR, voice input and support for file/book translation.
 This software contains source code provided by NVIDIA Corporation. Licenses and details are on GitHub.</source>
-        <translation>Офлайн-переводчик с OCR, голосовым вводом и поддержкой перевода файлов/книг.
+        <translation type="obsolete">Офлайн-переводчик с OCR, голосовым вводом и поддержкой перевода файлов/книг.
 Это программное обеспечение содержит исходный код, предоставленный корпорацией NVIDIA. 
 Лицензии и подробности находятся на GitHub.</translation>
     </message>
@@ -393,8 +393,21 @@ This software contains source code provided by NVIDIA Corporation. Licenses and 
     </message>
     <message>
         <location filename="main.py" line="854"/>
-        <source>Click to switch between continuous flow of text and separate lines for each sentence.</source>
+        <source>Click to toggle between continuous text and lines per sentence.</source>
         <translation>Нажмите, чтобы переключиться между слитным и построчным выводом.</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="874"/>
+        <source>Adjust appearance</source>
+        <translation>Настройка внешнего вида</translation>
+    </message>
+    <message>
+        <location filename="main.py" line="899"/>
+        <source>Offline translator with OCR, voice input, and file/book translation.
+This software contains source code provided by NVIDIA Corporation. Licenses and details are on GitHub.</source>
+        <translation>Офлайн-переводчик с OCR, голосовым вводом и поддержкой перевода файлов/книг.
+Это программное обеспечение содержит исходный код, предоставленный корпорацией NVIDIA. 
+Лицензии и подробности находятся на GitHub.</translation>
     </message>
 </context>
 </TS>

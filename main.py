@@ -805,7 +805,7 @@ class MainWindow(QMainWindow):
             configItem=cfg.whisper_model,
             icon=FluentIcon.CLOUD_DOWNLOAD,
             title=QCoreApplication.translate("MainWindow","Whisper Model"),
-            content=QCoreApplication.translate("MainWindow", "Change text-to-speech model"),
+            content=QCoreApplication.translate("MainWindow", "Change speech recognition model"),
             texts=['None',
                 *[m for m in available_models() if not m.startswith('distil') and not m.endswith('.en') and m != 'turbo']]
         )
@@ -817,7 +817,7 @@ class MainWindow(QMainWindow):
             text=QCoreApplication.translate("MainWindow","Remove"),
             icon=FluentIcon.BROOM,
             title=QCoreApplication.translate("MainWindow","Remove Whisper model"),
-            content=QCoreApplication.translate("MainWindow", "Delete currently selected text-to-speech model. Will be removed: <b>{}</b>").format(cfg.get(cfg.whisper_model).value),
+            content=QCoreApplication.translate("MainWindow", "Delete currently selected speech-to-text model. Will be removed: <b>{}</b>").format(cfg.get(cfg.whisper_model).value),
         )
 
         card_layout.addWidget(self.card_deletewhispermodel, alignment=Qt.AlignmentFlag.AlignTop)
@@ -854,7 +854,7 @@ class MainWindow(QMainWindow):
         self.card_switch_line_format = SwitchSettingCard(
             icon=FluentIcon.FONT_SIZE,
             title=QCoreApplication.translate("MainWindow","Voice-to-text output format"),
-            content=QCoreApplication.translate("MainWindow","Click to switch between continuous flow of text and separate lines for each sentence."),
+            content=QCoreApplication.translate("MainWindow","Click to toggle between continuous text and lines per sentence."),
             configItem=cfg.lineformat
         )
 
@@ -865,7 +865,7 @@ class MainWindow(QMainWindow):
             icon=FluentIcon.LANGUAGE,
             title=QCoreApplication.translate("MainWindow","Language"),
             content=QCoreApplication.translate("MainWindow", "Change UI language"),
-            texts=["English", "Русский"]
+            texts=["English", "Русский", "Deutsch"]
         )
 
         card_layout.addWidget(self.card_setlanguage, alignment=Qt.AlignmentFlag.AlignTop)
@@ -875,7 +875,7 @@ class MainWindow(QMainWindow):
             cfg.themeMode,
             FluentIcon.BRUSH,
             QCoreApplication.translate("MainWindow","Application theme"),
-            QCoreApplication.translate("MainWindow", "Adjust how the application looks"),
+            QCoreApplication.translate("MainWindow", "Adjust appearance"),
             [QCoreApplication.translate("MainWindow","Light"), QCoreApplication.translate("MainWindow","Dark"), QCoreApplication.translate("MainWindow","Follow System Settings")]
         )
 
@@ -901,7 +901,7 @@ class MainWindow(QMainWindow):
             text="Github",
             icon=FluentIcon.INFO,
             title=QCoreApplication.translate("MainWindow", "About"),
-            content=QCoreApplication.translate("MainWindow", "Offline translator with OCR, voice input and support for file/book translation.\nThis software contains source code provided by NVIDIA Corporation. Licenses and details are on GitHub.")
+            content=QCoreApplication.translate("MainWindow", "Offline translator with OCR, voice input, and file/book translation.\nThis software contains source code provided by NVIDIA Corporation. Licenses and details are on GitHub.")
         )
         card_layout.addWidget(self.card_ab,  alignment=Qt.AlignmentFlag.AlignTop )
 
@@ -1332,7 +1332,7 @@ class MainWindow(QMainWindow):
             elif self.is_not_supported_document(self.file_path):
                 InfoBar.error(
                     title=QCoreApplication.translate("MainWindow", "Error"),
-                    content=QCoreApplication.translate("MainWindow", "This file format is not fully supported. Please convert it to .docx and try again"),
+                    content=QCoreApplication.translate("MainWindow", "File format not fully supported. Convert to .docx and try again."),
                     orient=Qt.Orientation.Horizontal,
                     isClosable=True,
                     position=InfoBarPosition.BOTTOM,

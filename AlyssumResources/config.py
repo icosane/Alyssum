@@ -75,6 +75,7 @@ class Language(Enum):
 
     ENGLISH = QLocale(QLocale.Language.English, QLocale.Country.UnitedStates)
     RUSSIAN = QLocale(QLocale.Language.Russian, QLocale.Country.Russia)
+    GERMAN = QLocale(QLocale.Language.German, QLocale.Country.Germany)
     AUTO = QLocale(QLocale.Language.English, QLocale.Country.UnitedStates)
 
 class LanguageSerializer(ConfigSerializer):
