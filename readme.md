@@ -185,7 +185,7 @@ If CUDA is available, the app will automatically detect and use it for faster tr
 After installation, go to the app settings, copy the API key, and paste it into the extension settings.
 > **Note:** The API key only needs to be set once.
 
-> ⚠️ **Important:** If using uBlock Origin, make sure to **disable the `Block Outsider Intrusion into LAN` filter**. Otherwise, Alyssum will not be able to communicate with the local server.
+> ⚠️ **Important:** If using uBlock Origin, make sure to **disable the `Block Outsider Intrusion into LAN` filter**. Otherwise, extension will not be able to communicate with the local server.
 ---
 
 ## Registry entries (Windows)
