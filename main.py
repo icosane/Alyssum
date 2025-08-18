@@ -357,12 +357,6 @@ class ScreenshotOverlay(QWidget):
             width = x2 - x1
             height = y2 - y1
 
-            # **DEBUG** Print coordinates
-            '''print("Capture Region:")
-            print(f"x1: {x1}, y1: {y1}")
-            print(f"x2: {x2}, y2: {y2}")
-            print(f"Width: {width}, Height: {height}")'''
-
             # Only capture if selection is larger than a few pixels
             if width > 5 and height > 5:
                 # Capture the actual screen region
@@ -420,21 +414,6 @@ class ScreenshotTool(QObject):
         self.overlay.show()
 
     def handle_screenshot(self, pixmap):
-        # 1. Save to file
-        '''file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self.parent,
-            "Save Screenshot",
-            "",
-            "Image Files (*.png *.jpg *.bmp)"
-        )
-        if file_path:
-            pixmap.save(file_path)'''
-
-        # 2. Copy to clipboard
-        #clipboard = QApplication.clipboard()
-        #clipboard.setPixmap(pixmap)
-
-        # 3. Emit to other window
         self.screenshot_taken.emit(pixmap)
 
 
