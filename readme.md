@@ -21,6 +21,21 @@ licenses. Their license texts are provided in the [licenses/](./licenses) direct
 - **Browser extension** for translating selectable text without manual copy-paste.
 - **GPU acceleration** support for faster translation on compatible NVIDIA cards.
 
+---
+
+## Screenshots
+
+**Main Window**  
+![Main Window](./assets/1.png)  
+
+**Settings**  
+![Settings](./assets/2.png)  
+
+![](./assets/4.png)  
+
+**OCR in action**  
+![OCR in action](./assets/3.gif)
+
 ## Contents
 
 - [Getting Started](#getting-started)
@@ -32,9 +47,6 @@ licenses. Their license texts are provided in the [licenses/](./licenses) direct
 - [Browser Extension](#browser-extension)
 - [Registry entries (Windows)](#registry-entries-windows)
 - [Acknowledgments, Licenses and Third-Party Software](#acknowledgments-licenses-and-third-party-software)
-- [Screenshots](#screenshots)
-
----
 
 ## Getting Started
 
@@ -234,16 +246,3 @@ Full license texts for each component are included in the [licenses/](./licenses
 
 > **NOTE**: This software depends on packages that may be licensed under different open-source or proprietary licenses.
 ---
-
-## Screenshots
-
-**Main Window**  
-![Main Window](./assets/1.png)  
-
-**Settings**  
-![Settings](./assets/2.png)  
-
-![](./assets/4.png)  
-
-**OCR in action**  
-![OCR in action](./assets/3.gif)
