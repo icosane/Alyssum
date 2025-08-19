@@ -11,7 +11,7 @@ a = Analysis(
     ['main.py', './AlyssumResources/config.py', './AlyssumResources/translator.py', './AlyssumResources/argos_utils.py', './AlyssumResources/tesseract.py', './AlyssumResources/translate_server.py', './AlyssumResources/voice_input.py'],
     pathex=[],
     binaries=data,
-    datas=[('AlyssumResources','AlyssumResources')],
+    datas=[('AlyssumResources','AlyssumResources'),('licenses','licenses'),('LICENSE','LICENSE')],
     hiddenimports=['PyQt5', 'qfluentwidgets', 'pyaudio', 'faster_whisper'],
     hookspath=[],
     hooksconfig={},

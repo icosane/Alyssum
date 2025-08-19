@@ -34,7 +34,7 @@ def model_downloader(main_window):
 
 def update_model(main_window):
     model_name = cfg.get(cfg.whisper_model).value
-    content = QCoreApplication.translate("MainWindow", "Delete currently selected model. Will be removed: <b>{}</b>").format(cfg.get(cfg.whisper_model).value)
+    content = QCoreApplication.translate("MainWindow", "Delete currently selected speech-to-text model. Will be removed: <b>{}</b>").format(cfg.get(cfg.whisper_model).value)
 
     # Ensure record_button is updated
     if model_name == 'None':
