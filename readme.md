@@ -36,10 +36,23 @@ licenses. Their license texts are provided in the [licenses/](./licenses) direct
 **OCR in action**  
 ![OCR in action](./assets/3.gif)
 
+## Download compiled release
+
+Get the latest **Alyssum** release on the [GitHub Releases page](https://github.com/icosane/Alyssum/releases).
+
+> ⚠️ The archive is large and split into **three parts** (`.7z.001`, `.7z.002`, `.7z.003`). Download all parts and extract **only the first part** with [7-Zip](https://www.7-zip.org/) — the rest will combine automatically.
+
+**After extraction:**
+
+* Total size: \~6 GB
+* Run `Alyssum.exe`
+* Go to **Settings** to download Argos Translate packages for the languages you want.
+* If using voice input, download any Whisper model (larger models give better transcription).
+
 ## Contents
 
 - [Getting Started](#getting-started)
-- [Building .EXE](#building-exe)
+- [Optional: Building .EXE](#optional-building-exe)
 - [Translation Packages](#translation-packages)
 - [Tesseract Models](#tesseract-models)
 - [Voice input](#voice-input)
@@ -49,6 +62,8 @@ licenses. Their license texts are provided in the [licenses/](./licenses) direct
 - [Acknowledgments, Licenses and Third-Party Software](#acknowledgments-licenses-and-third-party-software)
 
 ## Getting Started
+
+>⚠️ If you downloaded the compiled release, skip the installation steps below — just extract the archive and run Alyssum.exe.
 
 ### Prerequisites
 
@@ -100,7 +115,7 @@ licenses. Their license texts are provided in the [licenses/](./licenses) direct
 
 ---
 
-## Building .EXE
+## Optional: Building .EXE
 
 1. Install PyInstaller:
    ```bash
