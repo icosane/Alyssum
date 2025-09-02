@@ -7,9 +7,9 @@ pytesseract==0.3.13
 opencv-python==4.12.0.88
 pyautogui==0.9.54
 pyinstaller==6.14.2
-nvidia-cuda-runtime-cu12==12.6.77
-nvidia-cudnn-cu12==9.5.1.17
-nvidia-cublas-cu12==12.6.4.1
+nvidia-cuda-runtime-cu12==12.6.77 ; sys_platform != "darwin"
+nvidia-cudnn-cu12==9.5.1.17 ; sys_platform != "darwin"
+nvidia-cublas-cu12==12.6.4.1 ; sys_platform != "darwin"
 Flask==3.1.1
 jsonify==0.5
 waitress==3.0.2
@@ -17,5 +17,5 @@ argos-translate-files==1.4.1
 faster-whisper==1.2.0
 pyaudio==0.2.14
 psutil==7.0.0
---extra-index-url https://download.pytorch.org/whl/cu126
+--extra-index-url https://download.pytorch.org/whl/cu126  ; sys_platform != "darwin"
 torch==2.7.1
