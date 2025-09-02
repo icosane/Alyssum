@@ -29,9 +29,15 @@ def get_lib_paths():
         base_dir = os.path.join(sys.prefix, "Lib", "site-packages")
 
     nvidia_base_libs = os.path.join(base_dir, "nvidia")
-    cuda_runtime = os.path.join(nvidia_base_libs, "cuda_runtime", "bin")
-    cublas = os.path.join(nvidia_base_libs, "cublas", "bin")
-    cudnn = os.path.join(nvidia_base_libs, "cudnn", "bin")
+
+    if sys.platform == "win32":
+        cuda_runtime = os.path.join(nvidia_base_libs, "cuda_runtime", "bin")
+        cublas = os.path.join(nvidia_base_libs, "cublas", "bin")
+        cudnn = os.path.join(nvidia_base_libs, "cudnn", "bin")
+    else:
+        cuda_runtime = os.path.join(nvidia_base_libs, "cuda_runtime", "lib")
+        cublas = os.path.join(nvidia_base_libs, "cublas", "lib")
+        cudnn = os.path.join(nvidia_base_libs, "cudnn", "lib")
 
     return [cuda_runtime, cublas, cudnn]
 
@@ -464,7 +470,10 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setWindowTitle(QCoreApplication.translate("MainWindow", "Alyssum"))
-        self.setWindowIcon(QIcon(os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")))
+        icon_path = os.path.join(res_dir, "AlyssumResources", "assets", "icon.ico")
+        if not os.path.exists(icon_path) and sys.platform != "win32":
+            icon_path = os.path.join(res_dir, "AlyssumResources", "assets", "icon.png")
+        self.setWindowIcon(QIcon(icon_path))
         self.settings = QSettings('icosane', 'Alyssum')
         self.setMinimumSize(800,900)
         self._local_api_key = self.settings.value("key", type=str)
@@ -512,6 +521,7 @@ class MainWindow(QMainWindow):
         self.main_layout()
         self.settings_layout()
         self.setup_theme()
+        update_model(self)
         self.center()
         self.startserver()
 
@@ -534,7 +544,10 @@ class MainWindow(QMainWindow):
         self.installEventFilter(self)
 
     def setup_theme(self):
-        setThemeColor(getSystemAccentColor())
+        if sys.platform in ["win32", "darwin"]:
+            setThemeColor(getSystemAccentColor())
+        else:
+            setThemeColor(QColor("#FFFFFF"))
         if isDarkTheme():
             theme_stylesheet = """
                 QWidget {
@@ -1292,6 +1305,11 @@ class MainWindow(QMainWindow):
     def update_remove_button(self, enabled):
         if hasattr(self, 'card_deletewhispermodel'):
             self.card_deletewhispermodel.button.setEnabled(enabled)
+
+    def update_record_button(self, enabled):
+        if hasattr(self, 'mic_button'):
+            self.mic_button.setEnabled(enabled)
+            self.mic_button.repaint()
 
     def open_file_dialog(self):
         initial_dir = self.last_directory if self.last_directory else ""

@@ -2,6 +2,7 @@ from enum import Enum
 import os, sys
 from pathlib import Path
 import pytesseract
+import shutil
 from ctranslate2 import get_cuda_device_count
 from faster_whisper import available_models
 from PyQt5.QtCore import QLocale
@@ -52,7 +53,20 @@ class TesseractManager:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
         TESSDATA_PREFIX = os.path.join(base_dir, "AlyssumResources", "tesseract", "share", "tessdata")
-        pytesseract.pytesseract.tesseract_cmd = os.path.join(base_dir, "AlyssumResources", "tesseract", "bin", "tesseract.exe")
+        if sys.platform == "win32":
+            pytesseract.pytesseract.tesseract_cmd = os.path.join(base_dir, "AlyssumResources", "tesseract", "bin", "tesseract.exe")
+        elif sys.platform == "darwin":
+            brew_path = "/opt/homebrew/bin/tesseract"
+            if os.path.exists(brew_path):
+                pytesseract.pytesseract.tesseract_cmd = brew_path
+            else:
+                pytesseract.pytesseract.tesseract_cmd = shutil.which("tesseract") or "tesseract"
+        else:
+            usr_bin = "/usr/bin/tesseract"
+            if os.path.exists(usr_bin):
+                pytesseract.pytesseract.tesseract_cmd = usr_bin
+            else:
+                pytesseract.pytesseract.tesseract_cmd = shutil.which("tesseract") or "tesseract"
 
         # Set environment variables
         os.environ.update({

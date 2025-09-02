@@ -38,11 +38,11 @@ def update_model(main_window):
 
     # Ensure record_button is updated
     if model_name == 'None':
-        #main_window.update_record_button(False)
+        main_window.update_record_button(False)
         main_window.update_remove_button(False)
         main_window.card_deletewhispermodel.setContent(content)
     else:
         model_downloader(main_window)
-        #main_window.update_record_button(True)
+        main_window.update_record_button(True)
         main_window.update_remove_button(True)
         main_window.card_deletewhispermodel.setContent(content)
