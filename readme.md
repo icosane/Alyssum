@@ -59,17 +59,21 @@ Get the latest **Alyssum** release on the [GitHub Releases page](https://github.
 - [GPU Acceleration](#gpu-acceleration)
 - [Browser Extension](#browser-extension)
 - [Registry entries (Windows)](#registry-entries-windows)
+- [Linux issues](#linux-issues)
 - [Acknowledgments, Licenses and Third-Party Software](#acknowledgments-licenses-and-third-party-software)
 
 ## Getting Started
 
 >⚠️ If you downloaded the compiled release, skip the installation steps below — just extract the archive and run Alyssum.exe.
 
+> **Note:** Alyssum is mainly developed and tested on **Windows**.  
+> While it should work on Linux, I have limited time to test extensively, so some features may require additional setup or adjustments. Contributions and fixes are welcome.
+
 ### Prerequisites
 
 1. [Python 3.12](https://www.python.org/downloads/release/python-3129/)
 2. [Git](https://git-scm.com/downloads)
-3. Windows
+3. Windows (primary), Linux (see [Linux issues](#linux-issues))
 4. NVIDIA GPU with CUDA 12.6 support *(optional, for GPU acceleration)*
 
 ### Installation
@@ -220,6 +224,31 @@ The application saves the window size, position, and API key in the system regis
 ```
 HKEY_CURRENT_USER\Software\icosane\Alyssum
 ```
+---
+
+## Linux issues
+
+The in-app translation and package installation work without issues, but there may be problems with **OCR** and **audio input (pyaudio)**. 
+
+- OCR requires a screenshot utility. You may try `gnome-screenshot`, but in testing (Fedora 42 on Wayland) it did not work reliably.  
+- Audio input with `pyaudio` may fail depending on your distribution.  
+
+### Minimum required packages
+
+```bash
+sudo apt-get install python3.12 python3-pyaudio gcc python3.12-dev gnome-screenshot tesseract-ocr
+```
+
+*(On Fedora use the equivalent `dnf` or `rpm` package names.)*
+
+### Development notes
+
+When creating a virtual environment in **VSCode/VSCodium**, make sure to select Python 3.12 explicitly from:
+
+```
+/usr/bin/python3.12
+```
+
 ---
 
 ## Acknowledgments, Licenses and Third-Party Software

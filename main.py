@@ -547,7 +547,7 @@ class MainWindow(QMainWindow):
         if sys.platform in ["win32", "darwin"]:
             setThemeColor(getSystemAccentColor())
         else:
-            setThemeColor(QColor("#FFFFFF"))
+            setThemeColor(QColor("#add8e6"))
         if isDarkTheme():
             theme_stylesheet = """
                 QWidget {
