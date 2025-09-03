@@ -236,7 +236,7 @@ The in-app translation and package installation work without issues, but there m
 ### Minimum required packages
 
 ```bash
-sudo apt-get install python3.12 python3-pyaudio gcc python3.12-dev gnome-screenshot tesseract-ocr
+sudo apt-get install python3.12 python3-pyaudio gcc python3.12-dev gnome-screenshot tesseract
 ```
 
 *(On Fedora use the equivalent `dnf` or `rpm` package names.)*
