@@ -202,7 +202,7 @@ If CUDA is available, the app will automatically detect and use it for faster tr
 
 ### Chromium-based browsers
 
->**Note:** By default, this extension is Manifest V2 (MV2), which is no longer supported in modern Chrome. I wasn’t able to fully port it to MV3, so the [MV3 version](https://github.com/icosane/Alyssum/blob/master/alyssum-ext/chrome.zip) is provided separately. In MV3, the extension only supports opening PDFs manually; automatic PDF detection won't work.
+>**Note:** By default, this extension is Manifest V2 (MV2), which is no longer supported in modern Chrome. I wasn’t able to fully port it to MV3, so the [MV3 version](https://github.com/icosane/Alyssum/blob/master/alyssum-ext/chrome.7z) is provided separately. In MV3, the extension only supports opening PDFs manually; automatic PDF detection won't work.
 
 1. Enable **Developer mode** in `chrome://extensions/`.
 2. Click **Load unpacked** and select the `alyssum-ext` folder.
