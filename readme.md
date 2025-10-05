@@ -200,7 +200,10 @@ If CUDA is available, the app will automatically detect and use it for faster tr
 
 ## Browser Extension
 
-### Chrome
+### Chromium-based browsers
+
+>**Note:** By default, this extension is Manifest V2 (MV2), which is no longer supported in modern Chrome. I wasn’t able to fully port it to MV3, so the [MV3 version](https://github.com/icosane/Alyssum/blob/master/alyssum-ext/chrome.zip) is provided separately. In MV3, the extension only supports opening PDFs manually; automatic PDF detection won't work.
+
 1. Enable **Developer mode** in `chrome://extensions/`.
 2. Click **Load unpacked** and select the `alyssum-ext` folder.
 
@@ -208,7 +211,7 @@ If CUDA is available, the app will automatically detect and use it for faster tr
 
 *(Optional: For Ungoogled Chromium or Supermium, you can enable `chrome://flags/#extension-mime-request-handling` → **Always prompt for install**, then drag the `.crx` file into Chrome.)*
 
-### Firefox (ESR, Developer Edition, Nightly)
+### Firefox-based browsers (or Firefox ESR, Developer Edition, Nightly)
 1. Open `about:config`.
 2. Set `xpinstall.signatures.required` to `false`.
 3. Open **Add-ons Manager** → **Settings** → **Install Add-on From File**.
