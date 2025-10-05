@@ -19,6 +19,7 @@ licenses. Their license texts are provided in the [licenses/](./licenses) direct
 - **Configurable shortcuts** for all main actions — launch OCR, translate, clear windows, copy results, start voice input and translate files.
 - **File translation** for `.txt`, `.odt`, `.odp`, `.docx`, `.pptx`, `.epub`, `.html`, `.srt`, and `.pdf`.
 - **Browser extension** for translating selectable text without manual copy-paste.
+- **Internal PDF viewer** based on PDFjs, for translating text inside PDFs via browser extension.
 - **GPU acceleration** support for faster translation on compatible NVIDIA cards.
 
 ---
@@ -207,7 +208,7 @@ If CUDA is available, the app will automatically detect and use it for faster tr
 
 *(Optional: For Ungoogled Chromium or Supermium, you can enable `chrome://flags/#extension-mime-request-handling` → **Always prompt for install**, then drag the `.crx` file into Chrome.)*
 
-### Firefox
+### Firefox (ESR, Developer Edition, Nightly)
 1. Open `about:config`.
 2. Set `xpinstall.signatures.required` to `false`.
 3. Open **Add-ons Manager** → **Settings** → **Install Add-on From File**.
@@ -217,6 +218,15 @@ After installation, go to the app settings, copy the API key, and paste it into 
 > **Note:** The API key only needs to be set once.
 
 > ⚠️ **Important:** If using uBlock Origin, make sure to **disable the `Block Outsider Intrusion into LAN` filter**. Otherwise, extension will not be able to communicate with the local server.
+
+### **Usage:**
+
+* **On web pages:** Select any text and click the floating popup button to translate it directly in the popup window.
+
+* **When viewing a PDF in Chrome or Firefox:** Click the extension button to open the internal PDF viewer with translation capabilities. You can translate any selectable text just like on regular web pages.
+
+* **When no PDF is open:** Clicking the extension button will still open the internal PDF viewer. You can drag and drop any local PDF file into it to view and translate.
+
 ---
 
 ## Registry entries (Windows)
