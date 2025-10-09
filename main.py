@@ -1319,7 +1319,7 @@ class MainWindow(QMainWindow):
             QCoreApplication.translate("MainWindow", "Select file"),
             initial_dir,
             QCoreApplication.translate("MainWindow",
-                "Text files (*.pdf *.epub *.docx *.txt);;"
+                "Supported files (*.pdf *.epub *.docx *.txt *.odp *.pptx *.srt *.odt *.html);;"
                 "All Files (*)")
         )
         if self.file_path:
